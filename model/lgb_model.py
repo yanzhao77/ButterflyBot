@@ -1,0 +1,55 @@
+# model/lgb_model.py
+"""
+LightGBM 模型封装：训练与预测接口
+"""
+
+import lightgbm as lgb
+from typing import Any
+
+
+class LGBModel:
+    def __init__(self, params: dict = None):
+        self.model = None
+        self.params = params or {
+            "objective": "binary",
+            "metric": "auc",
+            "boosting_type": "gbdt",
+            "num_leaves": 31,
+            "learning_rate": 0.05,
+            "feature_fraction": 0.9,
+            "bagging_fraction": 0.8,
+            "verbose": -1,
+            "random_state": 42
+        }
+
+    def train(self, X_train, y_train, X_val=None, y_val=None):
+        """训练模型"""
+        train_data = lgb.Dataset(X_train, label=y_train)
+        valid_sets = [train_data]
+        valid_names = ["train"]
+
+        if X_val is not None and y_val is not None:
+            val_data = lgb.Dataset(X_val, label=y_val, reference=train_data)
+            valid_sets.append(val_data)
+            valid_names.append("valid")
+
+        self.model = lgb.train(
+            self.params,
+            train_data,
+            valid_sets=valid_sets,
+            valid_names=valid_names,
+            num_boost_round=200,
+            callbacks=[lgb.early_stopping(stopping_rounds=30, verbose=False)]
+        )
+
+    def predict(self, X):
+        """返回上涨概率（正类概率）"""
+        if self.model is None:
+            raise RuntimeError("模型尚未训练！")
+        return self.model.predict(X, num_iteration=self.model.best_iteration)
+
+    def get_feature_importance(self):
+        """获取特征重要性"""
+        if self.model is None:
+            return {}
+        return dict(zip(self.model.feature_name(), self.model.feature_importance("gain")))
