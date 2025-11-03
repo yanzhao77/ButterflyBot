@@ -207,7 +207,7 @@ cat model/latest_model.txt  # 查看当前最优版本
 
 ## 📜 许可证
 
-本项目采用 [MIT 许可证](LICENSE)。
+本项目采用 [Apache-2.0 许可证](LICENSE)。
 
 ---
 
