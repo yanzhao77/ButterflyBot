@@ -3,8 +3,9 @@
 AI 信号核心逻辑：与框架无关的纯策略
 """
 
-import pandas as pd
 from typing import Dict, Any
+
+import pandas as pd
 
 from data.features import add_features, get_feature_columns
 from model.ensemble_model import EnsembleModel
@@ -13,12 +14,12 @@ from model.model_registry import load_latest_model_path
 
 class AISignalCore:
     def __init__(
-        self,
-        symbol: str = "BTC/USDT",
-        timeframe: str = "1h",
-        confidence_threshold: float = 0.6,
-        cooldown_bars: int = 3,
-        trend_filter: bool = True,
+            self,
+            symbol: str = "BTC/USDT",
+            timeframe: str = "1h",
+            confidence_threshold: float = 0.6,
+            cooldown_bars: int = 3,
+            trend_filter: bool = True,
     ):
         self.symbol = symbol
         self.timeframe = timeframe

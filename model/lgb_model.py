@@ -4,7 +4,6 @@ LightGBM 模型封装：训练与预测接口
 """
 
 import lightgbm as lgb
-from typing import Any
 
 
 class LGBModel:

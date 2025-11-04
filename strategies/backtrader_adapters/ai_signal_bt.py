@@ -6,9 +6,9 @@ Backtrader 适配器：包装 AISignalCore，用于回测
 import backtrader as bt
 import pandas as pd
 
-from strategies.ai_signal_core import AISignalCore
 from backtest.metrics import calculate_metrics, save_metrics
 from config.settings import TIMEFRAME
+from strategies.ai_signal_core import AISignalCore
 
 
 class AISignalStrategy(bt.Strategy):
@@ -22,8 +22,8 @@ class AISignalStrategy(bt.Strategy):
         ('timeframe', TIMEFRAME),
         ('save_trades', True),
         ('confidence_threshold', 0.6),
-        ('cooldown_bars', 0),      # Backtrader 自带 bar 控制，通常设为 0
-        ('trend_filter', False),   # 可选开启
+        ('cooldown_bars', 0),  # Backtrader 自带 bar 控制，通常设为 0
+        ('trend_filter', False),  # 可选开启
     )
 
     def __init__(self):

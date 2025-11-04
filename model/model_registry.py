@@ -3,15 +3,16 @@
 模型注册中心：保存、加载、比较模型版本
 """
 
-import os
-import json
 import glob
+import json
+import os
 from datetime import datetime
-import joblib
 from typing import Any, Optional, Tuple, List
+
+import joblib
+
 from config.settings import (
-    REGISTRY_DIR,
-    proxy
+    REGISTRY_DIR
 )
 
 os.makedirs(REGISTRY_DIR, exist_ok=True)

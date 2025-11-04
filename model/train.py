@@ -9,12 +9,11 @@
 import argparse
 import os
 
-from datetime import datetime
 from sklearn.metrics import roc_auc_score
 
-from config.settings import SYMBOL, TIMEFRAME, TRAIN_TEST_SPLIT_RATIO,REGISTRY_DIR
-from data.fetcher import fetch_ohlcv
+from config.settings import SYMBOL, TIMEFRAME, TRAIN_TEST_SPLIT_RATIO, REGISTRY_DIR
 from data.features import add_features, get_feature_columns
+from data.fetcher import fetch_ohlcv
 from model.lgb_model import LGBModel
 from model.model_registry import (
     save_model_with_metadata,
@@ -23,11 +22,17 @@ from model.model_registry import (
 )
 
 
-def main(symbol: str, timeframe: str, limit: int = 2000):
+def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None):
     print(f"🔧 开始训练模型 | 交易对: {symbol} | 周期: {timeframe} | K线数: {limit}")
 
     # === 1. 获取原始数据 ===
-    df_raw = fetch_ohlcv(symbol=symbol, timeframe=timeframe, limit=limit)
+    since = None
+    if since_days is not None:
+        from datetime import datetime, timedelta
+        dt_since = datetime.utcnow() - timedelta(days=since_days)
+        since = int(dt_since.timestamp() * 1000)
+        print(f"⏳ 拉取自 {dt_since.strftime('%Y-%m-%d')} 以来的所有K线数据")
+    df_raw = fetch_ohlcv(symbol=symbol, timeframe=timeframe, limit=limit, since=since)
 
     # --- 健壮性检查：数据量 ---
     if len(df_raw) < 200:
@@ -109,7 +114,7 @@ def main(symbol: str, timeframe: str, limit: int = 2000):
     return version, auc
 
 
-def train_and_evaluate(symbol: str = None, timeframe: str = None, limit: int = 2000):
+def train_and_evaluate(symbol: str = None, timeframe: str = None, limit: int = 2000, since_days: int = None):
     """向外暴露的便捷接口，兼容外部调用（如 API / 自动重训练）。
 
     若 symbol/timeframe 未提供则使用 config 中的默认值。
@@ -120,14 +125,15 @@ def train_and_evaluate(symbol: str = None, timeframe: str = None, limit: int = 2
     symbol = symbol or CFG_SYMBOL
     timeframe = timeframe or CFG_TIMEFRAME
 
-    return main(symbol=symbol, timeframe=timeframe, limit=limit)
+    return main(symbol=symbol, timeframe=timeframe, limit=limit, since_days=since_days)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="训练量化交易模型（V2+ 融合版）")
     parser.add_argument("--symbol", type=str, default=SYMBOL, help="交易对，如 BTC/USDT")
     parser.add_argument("--timeframe", type=str, default=TIMEFRAME, help="K线周期，如 1h, 15m")
-    parser.add_argument("--limit", type=int, default=2000, help="获取K线数量（建议 ≥1000）")
+    parser.add_argument("--limit", type=int, default=100000, help="获取K线数量（建议 ≥1000）")
+    parser.add_argument("--since_days", type=int, default=365, help="拉取过去 N 天的数据（如 365 表示一年）")
 
     args = parser.parse_args()
 
@@ -137,7 +143,8 @@ if __name__ == "__main__":
         version, auc = main(
             symbol=args.symbol,
             timeframe=args.timeframe,
-            limit=args.limit
+            limit=args.limit,
+            since_days=args.since_days
         )
         print(f"\n✅ 训练成功！版本: {version} | AUC: {auc:.4f}")
     except Exception as e:

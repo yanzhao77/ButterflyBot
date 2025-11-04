@@ -14,7 +14,7 @@ MODEL_METRICS_PATH = "./backtest/strategy_metrics.json"
 USE_REAL_MONEY = False  # 设为 True 启用实盘
 
 # 回测参数 初始资金（模拟盘用）
-INITIAL_CASH = 10000.0
+INITIAL_CASH = 1000.0
 
 # config/settings.py
 SYMBOL = "DOGE/USDT"
@@ -35,6 +35,30 @@ COOLDOWN_BARS = 2
 
 # 训练参数
 TRAIN_TEST_SPLIT_RATIO = 0.8  # 80% 训练，20% 测试（时间顺序）
+
+# 回测/实时策略窗口与特征最小行数
+# FEATURE_WINDOW: 策略每次预测时使用的历史 K 线数量（滑动窗口大小），默认 200
+# MIN_FEATURE_ROWS: 当特征工程后有效行数少于此值时，跳过预测（避免模型输入为空）
+FEATURE_WINDOW = 300  # 增加窗口长度，提升信号覆盖率
+MIN_FEATURE_ROWS = 60  # 增加最小有效行数，保证模型输入质量
+# 为计算滚动/EMA 等指标预留的额外历史长度（默认 120），
+# 回测/实时窗口会在 FEATURE_WINDOW 基础上向前拉取这部分数据用于计算指标，
+# 以避免因滚动窗口导致的 dropna 而使有效行数不足。
+FEATURE_HISTORY_PADDING = 120
+
+# 自动重训练/更新相关配置
+# 是否在回测检测到性能下降时触发重训练
+RETRAIN_ON_DEGRADATION = True
+# 如果回测 AUC 比训练 AUC 低于此阈值则触发重训练（绝对差值）
+RETRAIN_AUC_DIFF = 0.01
+# 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
+# 重训练拉取历史天数（默认 365 天）
+RETRAIN_SINCE_DAYS = 365
+# 重训练时的最大 K 线条数（fetch limit）
+RETRAIN_LIMIT = 10000
+# 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
+RETRAIN_ASYNC = True
+RETRAIN_MAX_ATTEMPTS = 20  # 自动重训练最大尝试次数
 
 proxy = 'http://127.0.0.1:7890'  # 替换为你的代理地址（Clash 默认 7890，SS 通常是 1080）
 

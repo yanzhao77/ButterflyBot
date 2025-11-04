@@ -7,11 +7,12 @@
 - 自动适配交易所精度与最小交易规则
 """
 
-import os
-import time
 import json
 import logging
+import os
+import time
 from datetime import datetime, timezone
+
 import pandas as pd
 
 from config.settings import (
@@ -31,8 +32,8 @@ from config.settings import (
     REGISTRY_DIR,
     LOG_PATH
 )
-from strategies.ai_signal_core import AISignalCore
 from data.fetcher import fetch_ohlcv
+from strategies.ai_signal_core import AISignalCore
 
 # ======================
 # 日志配置
@@ -71,8 +72,9 @@ class LiveRunner:
         )
 
         # 状态文件
-        self.state_file = f"live/state_{self.symbol.replace('/', '_')}.json"
+        self.state_file = REGISTRY_DIR / f"live/state_{self.symbol.replace('/', '_')}.json"
         self.last_kline_timestamp = None
+        self.last_close = None
         self.position = {"size": 0.0, "entry_price": 0.0}
         self.load_state()
 
@@ -133,6 +135,7 @@ class LiveRunner:
             with open(self.state_file, "r", encoding='utf-8') as f:
                 state = json.load(f)
                 self.last_kline_timestamp = state.get("last_kline")
+                self.last_close = state.get("last_close")
                 self.position = state.get("position", {"size": 0.0, "entry_price": 0.0})
                 if self.last_kline_timestamp:
                     self.last_kline_timestamp = pd.to_datetime(self.last_kline_timestamp, utc=True)
@@ -142,6 +145,7 @@ class LiveRunner:
         os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
         state = {
             "last_kline": self.last_kline_timestamp.isoformat() if self.last_kline_timestamp else None,
+            "last_close": float(self.last_close) if self.last_close is not None else None,
             "position": self.position,
             "updated_at": datetime.now(timezone.utc).isoformat()
         }
@@ -209,14 +213,54 @@ class LiveRunner:
     def run_once(self):
         """执行一次完整信号判断与交易循环"""
         try:
-            df = fetch_ohlcv(symbol=self.symbol, timeframe=self.timeframe, limit=300)
+            current_time = pd.Timestamp.now(tz='UTC')
+            logger.info(f"当前UTC时间: {current_time}")
+
+            # 获取最近1000根K线，保证有足够数据计算技术指标
+            df = fetch_ohlcv(symbol=self.symbol, timeframe=self.timeframe)
+            logger.info(f"获取到K线范围: {df.index[0]} 至 {df.index[-1]}")
             if len(df) < 100:
                 logger.warning("⚠️ 数据不足，跳过")
                 return
 
             latest_ts = df.index[-1]
-            if self.last_kline_timestamp and latest_ts <= self.last_kline_timestamp:
-                return  # K线未更新
+            current_last_close = float(df['close'].iloc[-1])
+
+            if self.last_kline_timestamp:
+                # 计算时间差（以秒为单位）
+                time_diff = (latest_ts - self.last_kline_timestamp).total_seconds()
+
+                # 根据timeframe判断是否有新K线
+                timeframe_seconds = {
+                    '1m': 60,
+                    '3m': 180,
+                    '5m': 300,
+                    '15m': 900,
+                    '30m': 1800,
+                    '1h': 3600,
+                    '2h': 7200,
+                    '4h': 14400,
+                    '6h': 21600,
+                    '12h': 43200,
+                    '1d': 86400,
+                }.get(self.timeframe, 3600)  # 默认1小时
+
+                # 如果时间差小于阈值，说明不是新闭合的K线
+                if time_diff < timeframe_seconds * 0.95:  # 添加5%的容差
+                    # 但可能是在同一根（未闭合）K线上发生价格更新（ccxt可能返回实时更新的未闭合K线）
+                    if self.last_close is None or current_last_close != float(self.last_close):
+                        logger.info(
+                            f"同一K线价格更新（未闭合）: 时间={latest_ts} | 旧价={self.last_close} -> 新价={current_last_close}；仅记录价格更新，不进行闭合K线交易")
+                        # 更新 last_close，并保存状态，但不把 last_kline_timestamp 当作已处理的新闭合K线
+                        self.last_close = current_last_close
+                        self.save_state()
+                        return
+                    else:
+                        logger.debug(
+                            f"K线未更新: 最新={latest_ts}, 上次={self.last_kline_timestamp}, 时间差={time_diff}秒")
+                        return
+
+                logger.info(f"检测到新K线: {latest_ts} (上次: {self.last_kline_timestamp}, 时间差={time_diff}秒)")
 
             logger.info(f"🕒 新K线闭合: {latest_ts} | 收盘价: {df['close'].iloc[-1]:.6f}")
 
@@ -241,7 +285,9 @@ class LiveRunner:
                 self.place_order("sell", self.position["size"])
 
             # 更新状态
+            # 更新状态（记录闭合K线的时间戳和收盘价）
             self.last_kline_timestamp = latest_ts
+            self.last_close = current_last_close
             self.save_state()
 
         except Exception as e:
