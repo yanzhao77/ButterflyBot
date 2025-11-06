@@ -11,7 +11,7 @@ import os
 
 from sklearn.metrics import roc_auc_score
 
-from config.settings import SYMBOL, TIMEFRAME, TRAIN_TEST_SPLIT_RATIO, REGISTRY_DIR
+from config.settings import SYMBOL, TIMEFRAME, TRAIN_TEST_SPLIT_RATIO, REGISTRY_DIR, RETRAIN_LIMIT, RETRAIN_SINCE_DAYS
 from data.features import add_features, get_feature_columns
 from data.fetcher import fetch_ohlcv
 from model.lgb_model import LGBModel
@@ -132,8 +132,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="训练量化交易模型（V2+ 融合版）")
     parser.add_argument("--symbol", type=str, default=SYMBOL, help="交易对，如 BTC/USDT")
     parser.add_argument("--timeframe", type=str, default=TIMEFRAME, help="K线周期，如 1h, 15m")
-    parser.add_argument("--limit", type=int, default=100000, help="获取K线数量（建议 ≥1000）")
-    parser.add_argument("--since_days", type=int, default=365, help="拉取过去 N 天的数据（如 365 表示一年）")
+    parser.add_argument("--limit", type=int, default=RETRAIN_LIMIT, help="获取K线数量（建议 ≥1000）")
+    parser.add_argument("--since_days", type=int, default=RETRAIN_SINCE_DAYS, help="拉取过去 N 天的数据（如 365 表示一年）")
 
     args = parser.parse_args()
 

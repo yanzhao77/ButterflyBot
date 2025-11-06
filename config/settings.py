@@ -2,6 +2,11 @@
 import os
 from pathlib import Path
 
+# 智谱 AI API 配置
+ZHIPU_API_KEY = "0d62ab35210808d52040993cd53788a5.NrIcZR8TpXjbUwrz"  # 替换为您的智谱API密钥
+ZHIPU_MODEL = "glm-4-flash"  # 或其他智谱支持的模型
+ZHIPU_API_TIMEOUT = 10  # API 超时时间（秒）
+
 # 实盘 API（仅 USE_REAL_MONEY=True 时需要）
 API_KEY = "your_api_key_here"
 API_SECRET = "your_api_secret_here"
@@ -14,32 +19,34 @@ MODEL_METRICS_PATH = "./backtest/strategy_metrics.json"
 USE_REAL_MONEY = False  # 设为 True 启用实盘
 
 # 回测参数 初始资金（模拟盘用）
-INITIAL_CASH = 1000.0
+INITIAL_CASH = 10000.0
 
 # config/settings.py
 SYMBOL = "DOGE/USDT"
 EXCHANGE_NAME = "binance"
-TIMEFRAME = "1h"  # 支持: 1m, 5m, 15m, 1h, 4h, 1d
+TIMEFRAME = "5m"  # 支持: 1m, 5m, 15m, 1h, 4h, 1d
 
 # 风控参数
 MAX_RISK_PER_TRADE = 0.02  # 单笔最大风险 2%
-STOP_LOSS_PCT = 0.05  # 默认止损 1.5%
-TAKE_PROFIT_PCT = 0.03  # 默认止盈 3%
+STOP_LOSS_PCT = 0.02  # 默认止损 1.5%
+TAKE_PROFIT_PCT = 0.05  # 默认止盈 3%
 # 风控
 MAX_POSITION_RATIO = 0.9  # 最大使用资金比例（90%）
 
 # 策略参数（传递给 AISignalCore）
-CONFIDENCE_THRESHOLD = 0.65
+CONFIDENCE_THRESHOLD = 0.6   # 降低信号阈值，增加交易机会
 TREND_FILTER = True
 COOLDOWN_BARS = 2
+TARGET_SHIFT = 5          # 新增：预测未来3根K线
+TARGET_THRESHOLD = 0.008  # 新增：0.2%涨幅阈值
 
 # 训练参数
-TRAIN_TEST_SPLIT_RATIO = 0.8  # 80% 训练，20% 测试（时间顺序）
+TRAIN_TEST_SPLIT_RATIO = 0.7  # 80% 训练，20% 测试（时间顺序）
 
 # 回测/实时策略窗口与特征最小行数
 # FEATURE_WINDOW: 策略每次预测时使用的历史 K 线数量（滑动窗口大小），默认 200
 # MIN_FEATURE_ROWS: 当特征工程后有效行数少于此值时，跳过预测（避免模型输入为空）
-FEATURE_WINDOW = 300  # 增加窗口长度，提升信号覆盖率
+FEATURE_WINDOW = 500  # 增加窗口长度，提升信号覆盖率
 MIN_FEATURE_ROWS = 60  # 增加最小有效行数，保证模型输入质量
 # 为计算滚动/EMA 等指标预留的额外历史长度（默认 120），
 # 回测/实时窗口会在 FEATURE_WINDOW 基础上向前拉取这部分数据用于计算指标，
@@ -53,12 +60,12 @@ RETRAIN_ON_DEGRADATION = True
 RETRAIN_AUC_DIFF = 0.01
 # 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
 # 重训练拉取历史天数（默认 365 天）
-RETRAIN_SINCE_DAYS = 365
+RETRAIN_SINCE_DAYS = 730
 # 重训练时的最大 K 线条数（fetch limit）
-RETRAIN_LIMIT = 10000
+RETRAIN_LIMIT = 100000
 # 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
 RETRAIN_ASYNC = True
-RETRAIN_MAX_ATTEMPTS = 20  # 自动重训练最大尝试次数
+RETRAIN_MAX_ATTEMPTS = 5  # 自动重训练最大尝试次数
 
 proxy = 'http://127.0.0.1:7890'  # 替换为你的代理地址（Clash 默认 7890，SS 通常是 1080）
 

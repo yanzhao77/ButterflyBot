@@ -86,11 +86,7 @@ def safe_fetch_ohlcv(exchange, symbol, timeframe='1h', limit=300, since=None, re
             # ccxt fetch_ohlcv: symbol, timeframe, since=None, limit=None, params={}
             # 只将 since/limit 作为顶层参数传递，params 只传 exchange-specific 参数
             params = {}  # 可扩展为 {'type': 'spot'} 等
-            data = exchange.fetch_ohlcv(symbol, timeframe, since=since, limit=limit, params=params)
-            # 如果返回数据超过限制，只取最新的limit条
-            if len(data) > limit:
-                data = data[-limit:]
-            return data
+            return exchange.fetch_ohlcv(symbol, timeframe, since=since, limit=limit, params=params)
         except (ccxt.NetworkError, ccxt.ExchangeError) as e:
             print(f"⚠️ 网络错误 (尝试 {i + 1}/{retries}): {str(e)}")
             time.sleep(2)  # 等待后重试
