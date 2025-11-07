@@ -4,7 +4,6 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Backtrader](https://img.shields.io/badge/Backtrader-1.9.76-orange)](https://www.backtrader.com/)
 
----
 *庄生晓梦迷蝴蝶，望帝春心托杜鹃。*
 *此情可待成追忆，只是当时已惘然。*
 ---
