@@ -28,8 +28,8 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
     # === 1. 获取原始数据 ===
     since = None
     if since_days is not None:
-        from datetime import datetime, timedelta
-        dt_since = datetime.utcnow() - timedelta(days=since_days)
+        from datetime import datetime, timedelta, timezone
+        dt_since = datetime.now(timezone.utc) - timedelta(days=since_days)
         since = int(dt_since.timestamp() * 1000)
         print(f"⏳ 拉取自 {dt_since.strftime('%Y-%m-%d')} 以来的所有K线数据")
     df_raw = fetch_ohlcv(symbol=symbol, timeframe=timeframe, limit=limit, since=since)
@@ -88,10 +88,11 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
     print(f"📈 测试集 AUC: {auc:.4f}")
 
     # === 6. 保存模型与元数据 ===
+    from datetime import datetime, timezone
     metadata = {
         "symbol": symbol,
         "timeframe": timeframe,
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "train_size": len(X_train),
         "test_size": len(X_test),
         "auc": round(auc, 4),

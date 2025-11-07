@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from config.settings import MODEL_METRICS_PATH
 
+
 def calculate_metrics(trades, y_true_for_auc=None):
     """
     计算回测核心指标
@@ -68,7 +69,7 @@ def load_metrics():
     """加载最新回测指标"""
     import json
     import os
-    path = "backtest/strategy_metrics.json"
+    path = MODEL_METRICS_PATH
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)

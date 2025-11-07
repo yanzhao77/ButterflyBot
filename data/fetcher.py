@@ -14,7 +14,7 @@ from config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy
 def fetch_ohlcv(
         symbol: str = SYMBOL,
         timeframe: str = TIMEFRAME,
-        limit: int = 1000,  # 默认获取200根K线
+        limit: int = 1000,  # 交易所单次上限通常为 1000
         exchange_name: str = EXCHANGE_NAME,
         since: int = None
 ) -> pd.DataFrame:
@@ -35,7 +35,7 @@ def fetch_ohlcv(
     try:
         exchange_class = getattr(ccxt, EXCHANGE_NAME)
         exchange = exchange_class({
-            'enableRateLimit': False,
+            'enableRateLimit': True,
             'timeout': 30000,
             'options': {'defaultType': 'spot'},
             'proxies': {
@@ -43,10 +43,32 @@ def fetch_ohlcv(
                 'https': proxy,
             }
         })
-        # exchange.load_markets()
-        ohlcv = safe_fetch_ohlcv(exchange, symbol, timeframe=timeframe, limit=limit, since=since)
+        exchange.load_markets()
+        # 分页抓取，直到达到 limit 或无更多数据
+        all_rows = []
+        fetched = 0
+        timeframe_ms = int(exchange.parse_timeframe(timeframe) * 1000)
+        next_since = since
+        page_limit = min(1000, limit) if limit else 1000
+        while True:
+            remaining = (limit - fetched) if limit else page_limit
+            this_limit = min(page_limit, remaining)
+            batch = safe_fetch_ohlcv(exchange, symbol, timeframe=timeframe, limit=this_limit, since=next_since)
+            if not batch:
+                break
+            all_rows.extend(batch)
+            fetched += len(batch)
+            # 终止条件：不足一页/达到上限
+            if len(batch) < this_limit or (limit and fetched >= limit):
+                break
+            # 前进 since，+1 个 timeframe 以避免重叠
+            last_ts = batch[-1][0]
+            next_since = int(last_ts + timeframe_ms)
+            # 避免过快请求
+            time.sleep(0.2)
+        ohlcv = all_rows
     except Exception as e:
-        raise RuntimeError(f"❌ 从 {exchange_name} 获取 {symbol} {timeframe} 数据失败: ")
+        raise RuntimeError(f"❌ 从 {exchange_name} 获取 {symbol} {timeframe} 数据失败: {e}")
     print(f"获取到 {len(ohlcv)} 条数据")
     if not ohlcv:
         raise ValueError(f"未获取到 {symbol} 的 K 线数据，请检查交易对和网络")

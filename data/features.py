@@ -6,6 +6,7 @@
 import pandas as pd
 import numpy as np
 from typing import List
+from config.settings import TARGET_SHIFT, TARGET_THRESHOLD
 
 
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -49,8 +50,9 @@ def add_features(df: pd.DataFrame) -> pd.DataFrame:
     df["volume_ma20"] = df["volume"].rolling(window=20).mean()
     df["volume_ratio"] = df["volume"] / df["volume_ma20"]
 
-    # === 目标变量：未来1根K线是否上涨（用于分类）===
-    df["target"] = (df["close"].shift(-1) > df["close"]).astype(int)
+    # === 目标变量：未来 TARGET_SHIFT 根累计涨幅是否超过阈值 ===
+    future_return = (df["close"].shift(-int(TARGET_SHIFT)) / df["close"]) - 1.0
+    df["target"] = (future_return >= float(TARGET_THRESHOLD)).astype(int)
 
     # 删除包含 NaN 的行（因滚动窗口导致）
     df.dropna(inplace=True)

@@ -30,6 +30,7 @@ from config.settings import (
     COOLDOWN_BARS,
     proxy,
     REGISTRY_DIR,
+    TRADE_ONLY_ON_CANDLE_CLOSE,
     LOG_PATH
 )
 from data.fetcher import fetch_ohlcv
@@ -247,14 +248,37 @@ class LiveRunner:
 
                 # 如果时间差小于阈值，说明不是新闭合的K线
                 if time_diff < timeframe_seconds * 0.95:  # 添加5%的容差
-                    # 但可能是在同一根（未闭合）K线上发生价格更新（ccxt可能返回实时更新的未闭合K线）
+                    # 可能是在同一根（未闭合）K线上发生价格更新
                     if self.last_close is None or current_last_close != float(self.last_close):
-                        logger.info(
-                            f"同一K线价格更新（未闭合）: 时间={latest_ts} | 旧价={self.last_close} -> 新价={current_last_close}；仅记录价格更新，不进行闭合K线交易")
-                        # 更新 last_close，并保存状态，但不把 last_kline_timestamp 当作已处理的新闭合K线
-                        self.last_close = current_last_close
-                        self.save_state()
-                        return
+                        if TRADE_ONLY_ON_CANDLE_CLOSE:
+                            logger.info(
+                                f"同一K线价格更新（未闭合）: 时间={latest_ts} | 旧价={self.last_close} -> 新价={current_last_close}；仅记录价格更新，不进行闭合K线交易")
+                            # 更新 last_close 并保存状态
+                            self.last_close = current_last_close
+                            self.save_state()
+                            return
+                        else:
+                            logger.info(
+                                f"同一K线价格更新（未闭合）: 时间={latest_ts} | 旧价={self.last_close} -> 新价={current_last_close}；根据配置允许同K线内交易")
+                            # 允许在未闭合K线内进行一次信号评估与可能的交易
+                            signal_info = self.strategy.generate_signal(df)
+                            signal = signal_info["signal"]
+                            confidence = signal_info["confidence"]
+                            reason = signal_info["reason"]
+                            logger.info(f"🧠(intra) 信号: {signal.upper()} | 置信度: {confidence:.3f} | 原因: {reason}")
+                            if signal == "buy" and self.position["size"] == 0:
+                                usdt_available = self.get_usdt_balance()
+                                max_use = usdt_available * MAX_POSITION_RATIO
+                                price = df["close"].iloc[-1]
+                                amount = max_use / price
+                                if amount > 0:
+                                    self.place_order("buy", amount)
+                            elif signal == "sell" and self.position["size"] > 0:
+                                self.place_order("sell", self.position["size"])
+                            # 更新 last_close，但不更新 last_kline_timestamp（仍视为未闭合）
+                            self.last_close = current_last_close
+                            self.save_state()
+                            return
                     else:
                         logger.debug(
                             f"K线未更新: 最新={latest_ts}, 上次={self.last_kline_timestamp}, 时间差={time_diff}秒")
