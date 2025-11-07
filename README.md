@@ -1,43 +1,32 @@
-# 🤖 Butterfly Bot：基于多模型融合的智能量化交易系统
+# 🤖 AI Quant Trading（Butterfly）
 
-*庄生晓梦迷蝴蝶，望帝春心托杜鹃。*
-*此情可待成追忆，只是当时已惘然。*
-
-[![Python](https://img.shields.io/badge/Python-3.13.7%2B-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Backtrader](https://img.shields.io/badge/Backtrader-1.9.76-orange)](https://www.backtrader.com/)
 
 ---
+*庄生晓梦迷蝴蝶，望帝春心托杜鹃。*
+*此情可待成追忆，只是当时已惘然。*
+---
 
-## 📌 简介
+---
 
-**Butterfly Bot** 是一个轻量级、可扩展的量化交易系统，融合了 **LightGBM 机器学习模型**、**Prophet 趋势预测** 与 **技术指标规则引擎**，通过动态权重集成策略生成交易信号。系统支持：
-
-- ✅ **多因子融合预测**（LGBM + Prophet + RSI/MACD 规则）
-- ✅ **动态权重调整**（根据回测 AUC 自动分配模型权重）
-- ✅ **模型版本管理**（带元数据、AUC、训练时间等）
-- ✅ **自动重训练机制**（回测性能提升时自动触发）
-- ✅ **时间框架自适应**（高频禁用 Prophet，避免过拟合）
-- ✅ **完整回测流水线**（胜率、盈亏比、AUC 等指标）
-
-适用于 **BTC/USDT** 等主流加密货币在 **1m ~ 1d** 时间框架下的日内或波段交易。
+一个可落地的加密量化框架：LightGBM 信号 + Prophet 趋势 + 规则引擎 的融合模型，支持分页抓取、模型注册管理、保守风控回测，以及基于 AISignalCore 的实时/模拟交易。
 
 ---
 
 ## 📁 项目结构
 
 ```
-butterfly_bot/
+ai-quant-trading/
 ├── config/               # 配置文件
 ├── data/                 # 数据获取与特征工程
 ├── models/               # 模型训练、加载与版本管理
-├── strategies/           # AI 交易策略
-├── backtest/             # 回测执行与指标计算
-├── utils/                # 工具函数（自动重训练、时间框架处理）
-├── live/                 # （预留）实盘交易接口
+├── strategies/           # 策略核心 + Backtrader 适配
+├── backtest/             # 回测入口与指标
+├── live/                 # 实时/模拟交易 Runner
 └── requirements.txt      # 依赖库
 ```
-### python版本是3.13.7
 ---
 
 ## ⚙️ 快速开始
@@ -45,6 +34,8 @@ butterfly_bot/
 ### 1. 安装依赖
 
 ```bash
+python -m venv .venv && . .venv/Scripts/activate  # Windows: .\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -95,39 +86,27 @@ python -m pip install lightgbm
 - FastAPI/uvicorn 已加入 requirements，启动 API 的示例命令在下文。
 
 
-### 2. 首次训练模型
+### 2) 训练模型
 
 ```bash
 python model/train.py
 ```
 
-将生成首个模型版本（如 `v20251103_1520.pkl`）并创建 `models/latest_model.txt`。
+自动分页抓取更长历史，生成目标（`TARGET_SHIFT/THRESHOLD`），并将最佳模型登记为 latest。
 
 ---
 
-### 3. 运行回测
+### 3) 回测（默认 AISignalStrategy）
 
 ```bash
 python backtest/run_backtest.py
 ```
 
-输出示例：
-```
-💼 初始资金: 10,000.00 USDT
-💰 最终资金: 12,345.67 USDT
-📈 收益率: 23.46%
-📈 回测完成 | AUC: 0.6821, 胜率: 58.3%
-🔍 当前模型 AUC: 0.6210 | 回测 AUC: 0.6821
-🚀 启动自动重训练...
-✅ 模型已保存: ./models/registry/v20251103_1530.pkl
-🏆 最优模型更新为: v20251103_1530
-```
-
-系统会自动判断是否需要重训练，并更新最优模型。
+回测按 `RETRAIN_SINCE_DAYS` 计算 since 并分页抓取，避免只拿到 1000 根。
 
 ---
 
-### 4. 查看模型版本
+### 4) 查看模型版本
 
 ```bash
 ls model/registry/          # 查看所有模型
@@ -136,15 +115,22 @@ cat model/latest_model.txt  # 查看当前最优版本
 
 ---
 
-## 🔧 配置说明
+## 🔧 配置说明（config/settings.py）
 
 ### `config/settings.py`
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `TIMEFRAME` | `"1h"` | 交易周期（支持 `"1m"`, `"5m"`, `"15m"`, `"1h"`, `"4h"`, `"1d"`） |
-| `INITIAL_CASH` | `10000.0` | 回测初始资金（USDT） |
-| `MODEL_METRICS_PATH` | `"./backtest/strategy_metrics.json"` | 回测指标保存路径 |
+| `TIMEFRAME` | `"1m/5m/15m/1h/4h/1d"` | 交易周期 |
+| `INITIAL_CASH` | `1000.0` | 回测初始资金（USDT） |
+| `RETRAIN_SINCE_DAYS` / `RETRAIN_LIMIT` | `180` / `100000` | 抓数窗口与上限 |
+| `MAX_POSITION_RATIO` | `0.2~0.5` | 单次资金占比上限 |
+| `STOP_LOSS_PCT` / `TAKE_PROFIT_PCT` | `0.01/0.02` | 百分比止损/止盈 |
+| `CONFIDENCE_THRESHOLD` / `SELL_THRESHOLD` | `0.6/0.5` | 固定阈值（兜底） |
+| `USE_QUANTILE_THRESH` + `PROB_Q_HIGH/LOW/WINDOW` | `True/0.9/0.55/500` | 分位数自适应阈值 |
+| `PROB_EMA_SPAN` / `REQUIRE_P_EMA_UP` | `10/True` | 概率平滑与动量过滤 |
+| `TIME_STOP_BARS` / `COOLDOWN_BARS` | `30/5` | 时间止损与冷却 |
+| `TRADE_ONLY_ON_CANDLE_CLOSE` | `True` | 实时仅闭合K线交易 |
 
 > 修改 `TIMEFRAME` 后，系统会自动调整 Prophet 使用策略（≤15m 时禁用）。
 
@@ -157,7 +143,7 @@ cat model/latest_model.txt  # 查看当前最优版本
 | 组件 | 权重范围 | 说明 |
 |------|--------|------|
 | **LightGBM** | 0.3 ~ 0.6 | 基于多因子的主模型，权重由 AUC 决定 |
-| **Prophet** | 0.0 ~ 0.4 | 趋势预测，仅在 ≥15m 周期启用 |
+| **Prophet** | 0.0 ~ 0.4 | 趋势预测，短周期可自动禁用 |
 | **规则引擎** | ≥0.1 | 基于 RSI<30 / MACD 金叉等经典信号 |
 
 权重计算规则：
@@ -174,7 +160,7 @@ cat model/latest_model.txt  # 查看当前最优版本
 - 若 `回测 AUC > 当前 AUC + 0.02`，则触发重训练
 - 训练后自动选择历史 **AUC 最高** 的模型作为 `latest`
 
-可通过修改 `utils/auto_retrain.py` 中的 `threshold_delta_auc` 调整敏感度。
+回测模块已预留自动重训练入口（默认关闭）。
 
 ---
 
@@ -191,11 +177,22 @@ cat model/latest_model.txt  # 查看当前最优版本
 }
 ```
 
-这些指标用于驱动模型权重与重训练决策。
+这些指标用于评估策略稳健性。
 
 ---
 
-## 🚀 扩展方向（未来计划）
+## 🚀 实时/模拟交易（LiveRunner）
+
+```bash
+python live/live_runner.py
+```
+
+- `USE_REAL_MONEY=False` 为模拟；设 True 并配置 `API_KEY/API_SECRET` 进入实盘。
+- `TRADE_ONLY_ON_CANDLE_CLOSE=False` 可在未闭合K线时按最新价评估并下单（调试用）。
+
+---
+
+## 🚀 扩展方向
 
 - [ ] 实盘交易接口（Binance API）
 - [ ] Telegram / 邮件交易通知
@@ -207,7 +204,7 @@ cat model/latest_model.txt  # 查看当前最优版本
 
 ## 📜 许可证
 
-本项目采用 [Apache-2.0 许可证](LICENSE)。
+本项目采用 [MIT 许可证](LICENSE)。
 
 ---
 
