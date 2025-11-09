@@ -57,8 +57,6 @@ FEATURE_WINDOW = 200  # 降低上限（原個 500），加快计算
 MIN_FEATURE_ROWS = 30  # 降低上限（原個 60），更容易成一个所了
 # 为计算满量/EMA 等指标预留的额外历史
 FEATURE_HISTORY_PADDING = 60
-# 以避免因滚动窗口导致的 dropna 而使有效行数不足。
-FEATURE_HISTORY_PADDING = 60
 
 # 自动重训练/更新相关配置
 # 是否在回测检测到性能下降时触发重训练
@@ -67,9 +65,9 @@ RETRAIN_ON_DEGRADATION = True
 RETRAIN_AUC_DIFF = 0.01
 # 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
 # 重训练拉取历史天数（默认 365 天，醍渐降低为 180）
-RETRAIN_SINCE_DAYS = 180  # 降低到 180 天，队失会成
+RETRAIN_SINCE_DAYS = 1095  # 降低到 180 天，队失会成
 # 重训练时的最大 K 线条数（fetch limit）
-RETRAIN_LIMIT = 100000
+RETRAIN_LIMIT = 1000000
 # 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
 RETRAIN_ASYNC = True
 RETRAIN_MAX_ATTEMPTS = 2  # 自动重训练最大尝试次数

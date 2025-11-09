@@ -4,11 +4,46 @@
 使用 ccxt 统一接口，支持多交易所（默认 Binance）
 """
 import time
+import os
 
 import ccxt
 import pandas as pd
 
-from config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy
+from config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy, BASE_PATH
+
+# 创建数据缓存目录
+CACHE_DIR = BASE_PATH / 'cached_data'
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def get_cache_filename(symbol: str, timeframe: str, exchange_name: str) -> str:
+    """生成缓存文件名"""
+    filename = f"{exchange_name}_{symbol.replace('/', '_')}_{timeframe}.csv"
+    return os.path.join(CACHE_DIR, filename)
+
+
+def load_cached_data(symbol: str, timeframe: str, exchange_name: str) -> pd.DataFrame:
+    """从本地缓存加载数据"""
+    cache_file = get_cache_filename(symbol, timeframe, exchange_name)
+    if os.path.exists(cache_file):
+        try:
+            df = pd.read_csv(cache_file)
+            df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True)
+            df.set_index('timestamp', inplace=True)
+            return df
+        except Exception as e:
+            print(f"加载缓存文件失败: {e}")
+    return pd.DataFrame()
+
+
+def save_data_to_cache(df: pd.DataFrame, symbol: str, timeframe: str, exchange_name: str):
+    """保存数据到本地缓存"""
+    cache_file = get_cache_filename(symbol, timeframe, exchange_name)
+    try:
+        df.to_csv(cache_file)
+        print(f"数据已缓存至: {cache_file}")
+    except Exception as e:
+        print(f"保存缓存文件失败: {e}")
 
 
 def fetch_ohlcv(
@@ -31,6 +66,15 @@ def fetch_ohlcv(
         pd.DataFrame: 包含 timestamp, open, high, low, close, volume 的 DataFrame
                       索引为 datetime(UTC)
     """
+    # 首先尝试从缓存加载数据
+    df_cached = load_cached_data(symbol, timeframe, exchange_name)
+    if not df_cached.empty:
+        print("使用本地缓存数据")
+        # 如果需要限制数据量
+        if limit:
+            return df_cached.tail(limit)
+        return df_cached
+
     # 初始化交易所（不启用 rate limit，避免回测阻塞）
     try:
         exchange_class = getattr(ccxt, EXCHANGE_NAME)
@@ -65,7 +109,7 @@ def fetch_ohlcv(
             last_ts = batch[-1][0]
             next_since = int(last_ts + timeframe_ms)
             # 避免过快请求
-            time.sleep(0.2)
+            time.sleep(10)
         ohlcv = all_rows
     except Exception as e:
         raise RuntimeError(f"❌ 从 {exchange_name} 获取 {symbol} {timeframe} 数据失败: {e}")
@@ -89,6 +133,9 @@ def fetch_ohlcv(
 
     # 按时间升序排序（确保最新在最后）
     df.sort_index(inplace=True)
+
+    # 保存到缓存
+    save_data_to_cache(df, symbol, timeframe, exchange_name)
 
     return df
 
