@@ -44,6 +44,9 @@ from config.settings import (
     PROB_Q_HIGH,
     PROB_Q_LOW,
     PROB_WINDOW,
+    USE_TRAILING_STOP,
+    TRAILING_STOP_ACTIVATION,
+    TRAILING_STOP_DISTANCE,
 )
 
 
@@ -65,6 +68,9 @@ class AIButterflyStrategy(bt.Strategy):
         self.entry_price = None
         self.entry_bar = None
         self.cooldown_until = -1
+        # 跟踪止盈变量
+        self.highest_price = None
+        self.trailing_active = False
 
     def next(self):
         if self.order:
@@ -203,32 +209,54 @@ class AIButterflyStrategy(bt.Strategy):
 
         # 使用显式持仓数量判断，避免 Backtrader 中 position 对象在空仓时也被视为真
         current_bar = len(self)
-        # 平仓条件：止损/止盈/时间止损 或 概率EMA触及卖出阈值
+        # 平仓条件：止损/止盈/时间止损/跟踪止盈 或 概率EMA触及卖出阈值
         if self.position.size > 0:
             price_now = float(self.data_close[0])
             hit_sl = False
             hit_tp = False
             hit_time = False
+            hit_trailing = False
+            
             if self.entry_price is not None:
                 ret = (price_now - self.entry_price) / self.entry_price
                 hit_sl = ret <= -float(STOP_LOSS_PCT)
                 hit_tp = ret >= float(TAKE_PROFIT_PCT)
+                
+                # 跟踪止盈逻辑
+                if USE_TRAILING_STOP:
+                    # 当盈利达到激活阈值时，启动跟踪
+                    if ret >= float(TRAILING_STOP_ACTIVATION):
+                        self.trailing_active = True
+                    
+                    # 更新最高价
+                    if self.trailing_active:
+                        if self.highest_price is None or price_now > self.highest_price:
+                            self.highest_price = price_now
+                        
+                        # 检查是否从最高点回撤超过阈值
+                        if self.highest_price is not None:
+                            drawdown = (self.highest_price - price_now) / self.highest_price
+                            if drawdown >= float(TRAILING_STOP_DISTANCE):
+                                hit_trailing = True
+            
             if self.entry_bar is not None and TIME_STOP_BARS and int(TIME_STOP_BARS) > 0:
                 hit_time = (current_bar - int(self.entry_bar)) >= int(TIME_STOP_BARS)
 
-            should_sell = (p_eval <= sell_threshold) or hit_sl or hit_tp or hit_time
+            should_sell = (p_eval <= sell_threshold) or hit_sl or hit_tp or hit_time or hit_trailing
             if should_sell:
                 self.order = self.sell(size=self.position.size)
                 if self.p.printlog:
                     self.log(
-                        f"SELL CREATE, price={self.data_close[0]:.6f}, size={self.position.size:.6f}, p_ema={p_eval:.3f}, sl={hit_sl}, tp={hit_tp}, tstop={hit_time}")
+                        f"SELL CREATE, price={self.data_close[0]:.6f}, size={self.position.size:.6f}, p_ema={p_eval:.3f}, sl={hit_sl}, tp={hit_tp}, tstop={hit_time}, trailing={hit_trailing}")
                 else:
                     print(
-                        f"[DEBUG] SELL CREATE at {self.data_close[0]:.6f}, size={self.position.size:.6f}, p_ema={p_eval:.3f}, sl={hit_sl}, tp={hit_tp}, tstop={hit_time}")
-                # 冷却
+                        f"[DEBUG] SELL CREATE at {self.data_close[0]:.6f}, size={self.position.size:.6f}, p_ema={p_eval:.3f}, sl={hit_sl}, tp={hit_tp}, tstop={hit_time}, trailing={hit_trailing}")
+                # 重置所有状态
                 self.cooldown_until = current_bar + int(COOLDOWN_BARS)
                 self.entry_price = None
                 self.entry_bar = None
+                self.highest_price = None
+                self.trailing_active = False
             return
 
         # 空仓：冷却外且满足买入阈值

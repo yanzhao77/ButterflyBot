@@ -23,29 +23,29 @@ SYMBOL = "DOGE/USDT"
 EXCHANGE_NAME = "binance"
 TIMEFRAME = "15m"  # 支持: 1m, 5m, 15m, 1h, 4h, 1d
 
-# 风控参数
-MAX_RISK_PER_TRADE = 0.015  # 单笔最大风险 1.5%
-STOP_LOSS_PCT = 0.008  # 默认止损 1.5%（收紧止损）
-TAKE_PROFIT_PCT = 0.01  # 默认止盈 3%（降低止盈目标）
+# 风控参数（优化后）
+MAX_RISK_PER_TRADE = 0.025  # 单笔最大风险 2.5%
+STOP_LOSS_PCT = 0.025  # 默认止损 2.5%（放宽止损，避免被正常波动扫出）
+TAKE_PROFIT_PCT = 0.05  # 默认止盈 5%（提高止盈目标，盈亏比2:1）
 # 风控
-MAX_POSITION_RATIO = 0.3  # 最大使用资金比例（30%，降低仓位）
+MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
 
-# 策略参数（传递给 AISignalCore/策略）
-CONFIDENCE_THRESHOLD = 0.47  # 买入置信阈值（降低到0.55，获得交易机会）
-SELL_THRESHOLD = 0.45  # 卖出/平仓阈值（降低到0.45）
+# 策略参数（传递给 AISignalCore/策略）- 优化后（平衡版）
+CONFIDENCE_THRESHOLD = 0.62  # 买入置信阈值（设为0.62，平衡交易频率和质量）
+SELL_THRESHOLD = 0.40  # 卖出/平仓阈值（设为0.40，避免过早离场）
 TREND_FILTER = True
-COOLDOWN_BARS = 8  # 平仓/开仓后的冷却条数（增加冷却期）
-PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（增加平滑度）
-TIME_STOP_BARS = 20  # 时间止损：持仓超过N根K线未验证则平仓（缩短至5小时）
+COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（优化为5，约75分钟）
+PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
+TIME_STOP_BARS = 50  # 时间止损：持仓超过N根K线未验证则平仓（延长至50，约12.5小时）
 USE_QUANTILE_THRESH = True  # 使用分位数自适应阈值
-PROB_Q_HIGH = 0.8  # 买入触发的高分位
-PROB_Q_LOW = 0.5  # 卖出触发的低分位（回转带）
-PROB_WINDOW = 200  # 分位数计算窗口大小
+PROB_Q_HIGH = 0.85  # 买入触发的高分位（提高到0.85，更严格）
+PROB_Q_LOW = 0.40  # 卖出触发的低分位（降低到0.40，避免过早离场）
+PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
 REQUIRE_P_EMA_UP = True  # 仅当 p_ema 动量向上时允许开多
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
 TRADE_ONLY_ON_CANDLE_CLOSE = True  # 仅在K线闭合时交易；调试可设为 False 支持同K线内交易
-TARGET_SHIFT = 2  # 新增：预测未来鏱-2根K线（不远远不走）
-TARGET_THRESHOLD = 0.012  # 新增：1.2%涨幅阈值（投资玻记）
+TARGET_SHIFT = 8  # 优化：预测未来8根K线（2小时，降低噪音）
+TARGET_THRESHOLD = 0.03  # 优化：3%涨幅阈值（与止盈目标匹配）
 
 # 训练参数
 TRAIN_TEST_SPLIT_RATIO = 0.7  # 80% 训练，20% 测试（时间顺序）
@@ -64,8 +64,8 @@ RETRAIN_ON_DEGRADATION = True
 # 如果回测 AUC 比训练 AUC 低于此阈值则触发重训练（绝对差值）
 RETRAIN_AUC_DIFF = 0.01
 # 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
-# 重训练拉取历史天数（默认 365 天，醍渐降低为 180）
-RETRAIN_SINCE_DAYS = 1095  # 降低到 180 天，队失会成
+# 重训练拉取历史天数（优化为365天，平衡数据量和训练速度）
+RETRAIN_SINCE_DAYS = 365  # 优化到365天，关注近期市场特征
 # 重训练时的最大 K 线条数（fetch limit）
 RETRAIN_LIMIT = 1000000
 # 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
@@ -81,3 +81,8 @@ REGISTRY_DIR = BASE_PATH / "models/registry"
 # 路径配置
 MODEL_SAVE_PATH = BASE_PATH / "/model/saved/lgb_model.pkl"
 MODEL_METRICS_PATH = BASE_PATH / "/backtest/strategy/strategy_metrics.json"
+
+# 跟踪止盈配置（新增优化功能）
+USE_TRAILING_STOP = True  # 启用跟踪止盈
+TRAILING_STOP_ACTIVATION = 0.03  # 盈利达到3%后启动跟踪
+TRAILING_STOP_DISTANCE = 0.015  # 从最高点回撤1.5%时止盈
