@@ -30,16 +30,16 @@ TAKE_PROFIT_PCT = 0.05  # 默认止盈 5%（提高止盈目标，盈亏比2:1）
 # 风控
 MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
 
-# 策略参数（传递给 AISignalCore/策略）- 优化后（平衡版）
-CONFIDENCE_THRESHOLD = 0.62  # 买入置信阈值（设为0.62，平衡交易频率和质量）
-SELL_THRESHOLD = 0.40  # 卖出/平仓阈值（设为0.40，避免过早离场）
+# 策略参数（传递给 AISignalCore/策略）- 优化后（保守版v2）
+CONFIDENCE_THRESHOLD = 0.70  # 买入置信阈值（提高到0.70，大幅降低交易频率）
+SELL_THRESHOLD = 0.38  # 卖出/平仓阈值（保持0.38，避免过早离场）
 TREND_FILTER = True
-COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（优化为5，约75分钟）
+COOLDOWN_BARS = 10  # 平仓/开仓后的冷却条数（增加到10，约2.5小时）
 PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
 TIME_STOP_BARS = 50  # 时间止损：持仓超过N根K线未验证则平仓（延长至50，约12.5小时）
 USE_QUANTILE_THRESH = True  # 使用分位数自适应阈值
-PROB_Q_HIGH = 0.85  # 买入触发的高分位（提高到0.85，更严格）
-PROB_Q_LOW = 0.40  # 卖出触发的低分位（降低到0.40，避免过早离场）
+PROB_Q_HIGH = 0.90  # 买入触发的高分位（提高到0.90，极度严格）
+PROB_Q_LOW = 0.35  # 卖出触发的低分位（降低到0.35，避免过早离场）
 PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
 REQUIRE_P_EMA_UP = True  # 仅当 p_ema 动量向上时允许开多
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
@@ -82,7 +82,7 @@ REGISTRY_DIR = BASE_PATH / "models/registry"
 MODEL_SAVE_PATH = BASE_PATH / "/model/saved/lgb_model.pkl"
 MODEL_METRICS_PATH = BASE_PATH / "/backtest/strategy/strategy_metrics.json"
 
-# 跟踪止盈配置（新增优化功能）
+# 跟踪止盈配置（新增优化功能）- 优化版
 USE_TRAILING_STOP = True  # 启用跟踪止盈
-TRAILING_STOP_ACTIVATION = 0.03  # 盈利达到3%后启动跟踪
-TRAILING_STOP_DISTANCE = 0.015  # 从最高点回撤1.5%时止盈
+TRAILING_STOP_ACTIVATION = 0.02  # 盈利达到2%后启动跟踪（更早启动）
+TRAILING_STOP_DISTANCE = 0.01  # 从最高点回撤1%时止盈（更紧跟踪）
