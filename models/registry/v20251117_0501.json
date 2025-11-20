@@ -1,0 +1,28 @@
+{
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "timestamp": "2025-11-17T10:01:14.259289+00:00",
+  "train_size": 11865,
+  "test_size": 5086,
+  "auc": 0.7045,
+  "features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "return",
+    "log_return",
+    "ma20",
+    "ma50",
+    "ma_diff",
+    "rsi",
+    "macd",
+    "macd_signal",
+    "macd_hist",
+    "volatility",
+    "volume_ratio"
+  ],
+  "limit": 17000,
+  "split_ratio": 0.7
+}

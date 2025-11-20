@@ -44,8 +44,8 @@ PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
 REQUIRE_P_EMA_UP = True  # 仅当 p_ema 动量向上时允许开多
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
 TRADE_ONLY_ON_CANDLE_CLOSE = True  # 仅在K线闭合时交易；调试可设为 False 支持同K线内交易
-TARGET_SHIFT = 8  # 优化：预测未来8根K线（2小时，降低噪音）
-TARGET_THRESHOLD = 0.03  # 优化：3%涨幅阈值（与止盈目标匹配）
+TARGET_SHIFT = 4  # 优化v3：预测未来4根K线（1小时，平衡噪音和机会）
+TARGET_THRESHOLD = 0.015  # 优化v3：涨幅阈值1.5%（更容易达到，增加正样本）
 
 # 训练参数
 TRAIN_TEST_SPLIT_RATIO = 0.7  # 80% 训练，20% 测试（时间顺序）
