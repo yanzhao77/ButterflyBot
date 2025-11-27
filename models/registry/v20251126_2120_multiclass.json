@@ -1,0 +1,37 @@
+{
+  "version": "v20251126_2120",
+  "type": "multiclass",
+  "num_classes": 3,
+  "class_labels": {
+    "0": "\u505a\u7a7a",
+    "1": "\u89c2\u671b",
+    "2": "\u505a\u591a"
+  },
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "prediction_window": 4,
+  "long_threshold": 0.012,
+  "short_threshold": -0.012,
+  "train_samples": 24462,
+  "test_samples": 10485,
+  "test_accuracy": 0.8753457319980925,
+  "features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "return",
+    "log_return",
+    "ma20",
+    "ma50",
+    "ma_diff",
+    "rsi",
+    "macd",
+    "macd_signal",
+    "macd_hist",
+    "volatility",
+    "volume_ratio"
+  ],
+  "created_at": "2025-11-27T02:20:27.619394+00:00"
+}
