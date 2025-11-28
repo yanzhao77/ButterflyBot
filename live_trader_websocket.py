@@ -6,17 +6,17 @@
 使用 CCXT 执行交易订单
 """
 
+import json
 import os
 import sys
 import time
-import json
+from collections import deque
+from datetime import datetime
+
+import ccxt
 import joblib
 import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-from collections import deque
-from binance import ThreadedWebsocketManager
-import ccxt
+import websocket
 
 # 导入项目模块
 from data.features import add_features
@@ -25,7 +25,7 @@ from config_stage1 import *
 class LiveTraderWebSocket:
     """基于WebSocket的实时交易系统"""
     
-    def __init__(self, api_key=None, api_secret=None, test_mode=True):
+    def __init__(self, api_key=None, api_secret=None, test_mode=True, proxy_host=None, proxy_port=None):
         """
         初始化交易系统
         
@@ -73,7 +73,10 @@ class LiveTraderWebSocket:
         self.trades = []
         self.equity = INITIAL_CASH
         self.cash = INITIAL_CASH
-        
+
+        # 代理
+        self.proxy_host = proxy_host
+        self.proxy_port = proxy_port
         # 监控
         from stage1_monitor import Stage1Monitor
         self.monitor = Stage1Monitor()
@@ -120,10 +123,11 @@ class LiveTraderWebSocket:
     
     def handle_kline(self, msg):
         """处理WebSocket K线消息"""
-        if msg['e'] != 'kline':
+        data = json.loads(msg)
+        if data.get('e') != 'kline':
             return
-        
-        kline = msg['k']
+
+        kline = data['k']
         is_closed = kline['x']  # K线是否已完成
         
         # 构造K线数据
@@ -206,7 +210,7 @@ class LiveTraderWebSocket:
         X = latest_features[feature_cols].values.reshape(1, -1)
         
         # 预测
-        prob = self.model.predict_proba(X)[0][1]
+        prob = self.model.predict(X)[0]
         
         print(f"📊 预测概率: {prob:.4f}")
         
@@ -302,7 +306,7 @@ class LiveTraderWebSocket:
                 latest_features = features_df.iloc[-1]
                 feature_cols = [col for col in features_df.columns if col not in ['timestamp', 'close']]
                 X = latest_features[feature_cols].values.reshape(1, -1)
-                prob = self.model.predict_proba(X)[0][1]
+                prob = self.model.predict(X)[0]
                 
                 if self.position == 'long' and prob < 0.5 - CONFIDENCE_THRESHOLD:
                     exit_reason = '信号反转(做空)'
@@ -415,24 +419,50 @@ class LiveTraderWebSocket:
         self.load_historical_data()
         
         # 创建WebSocket管理器
-        self.twm = ThreadedWebsocketManager()
-        self.twm.start()
+        ws_url = f"wss://stream.binance.com:9443/ws/{self.symbol.lower()}@kline_{self.interval}"
+
+        url = f"wss://stream.binance.com:9443/ws/{self.symbol.lower()}@kline_{self.interval}"
+
+        def on_message(ws, message):
+            self.handle_kline(message)
+
+        def on_error(ws, error):
+            print("\n❌ WebSocket 错误:", error)
+
+        def on_close(ws, close_status_code, close_msg):
+            print("\n🛑 WebSocket 已关闭")
+
+        def on_open(ws):
+            print("✅ WebSocket 已连接")
+
+        self.twm = websocket.WebSocketApp(
+            url,
+            on_open=on_open,
+            on_message=on_message,
+            on_error=on_error,
+            on_close=on_close
+        )
+
+
         
         # 启动K线监听
         print(f"📡 启动 {self.symbol} {self.interval} K线监听...")
-        self.twm.start_kline_socket(
-            callback=self.handle_kline,
-            symbol=self.symbol,
-            interval=self.interval
-        )
-        
+        # self.twm.run_forever(
+        #     http_proxy_host=self.proxy_host,
+        #     http_proxy_port=self.proxy_port,
+        #     proxy_type="http"
+        # )
+
         print("✅ 系统已启动！")
         print("按 Ctrl+C 停止...")
-        
+
         try:
-            # 保持运行
-            while True:
-                time.sleep(1)
+            # 使用代理（可选）
+            self.twm.run_forever(
+                http_proxy_host="127.0.0.1",
+                http_proxy_port=7890,
+                proxy_type="http"  # socks5: "socks5"
+            )
         except KeyboardInterrupt:
             print("\n\n🛑 停止交易系统...")
             self.stop()
@@ -481,7 +511,8 @@ def main():
     parser.add_argument('--api-key', type=str, help='Binance API Key')
     parser.add_argument('--api-secret', type=str, help='Binance API Secret')
     parser.add_argument('--live', action='store_true', help='实盘模式（默认为测试模式）')
-    
+    parser.add_argument('--proxy-host', type=str, default='127.0.0.1')
+    parser.add_argument('--proxy-port', type=int, default=7890)
     args = parser.parse_args()
     
     # 从环境变量或参数获取API密钥
@@ -500,7 +531,9 @@ def main():
     trader = LiveTraderWebSocket(
         api_key=api_key,
         api_secret=api_secret,
-        test_mode=test_mode
+        test_mode=test_mode,
+        proxy_host=args.proxy_host,
+        proxy_port=args.proxy_port
     )
     
     # 启动

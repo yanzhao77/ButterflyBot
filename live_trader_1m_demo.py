@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 实时交易系统演示 - 1分钟K线
-快速演示WebSocket实时交易功能
+同步WebSocket实现，使用 websocket-client
 """
 
-import time
+import json
 from datetime import datetime
 from collections import deque
-from binance import ThreadedWebsocketManager
+import websocket
+
 
 class LiveTrader1mDemo:
     """1分钟K线演示版本"""
@@ -29,10 +30,11 @@ class LiveTrader1mDemo:
     
     def handle_kline(self, msg):
         """处理K线消息"""
-        if msg['e'] != 'kline':
+        data = json.loads(msg)
+        if data.get('e') != 'kline':
             return
-        
-        kline = msg['k']
+
+        kline = data['k']
         is_closed = kline['x']
         
         timestamp = datetime.fromtimestamp(kline['t']/1000)
@@ -77,22 +79,36 @@ class LiveTrader1mDemo:
     def start(self):
         """启动系统"""
         print("\n🚀 启动WebSocket监听...")
-        
-        self.twm = ThreadedWebsocketManager()
-        self.twm.start()
-        
-        self.twm.start_kline_socket(
-            callback=self.handle_kline,
-            symbol=self.symbol,
-            interval=self.interval
+
+        url = f"wss://stream.binance.com:9443/ws/{self.symbol.lower()}@kline_{self.interval}"
+
+        def on_message(ws, message):
+            self.handle_kline(message)
+
+        def on_error(ws, error):
+            print("\n❌ WebSocket 错误:", error)
+
+        def on_close(ws, close_status_code, close_msg):
+            print("\n🛑 WebSocket 已关闭")
+
+        def on_open(ws):
+            print("✅ WebSocket 已连接")
+
+        self.twm = websocket.WebSocketApp(
+            url,
+            on_open=on_open,
+            on_message=on_message,
+            on_error=on_error,
+            on_close=on_close
         )
-        
-        print("✅ 系统已启动！")
-        print("等待K线完成信号...\n")
-        
+
         try:
-            while self.bar_count < 10:
-                time.sleep(1)
+            # 使用代理（可选）
+            self.twm.run_forever(
+                http_proxy_host="127.0.0.1",
+                http_proxy_port=7890,
+                proxy_type="http"  # socks5: "socks5"
+            )
         except KeyboardInterrupt:
             print("\n\n🛑 用户中断")
             self.stop()
@@ -102,6 +118,8 @@ class LiveTrader1mDemo:
         if self.twm:
             self.twm.stop()
         print("\n✅ 系统已停止")
+        exit(0)
+
 
 if __name__ == "__main__":
     demo = LiveTrader1mDemo()
