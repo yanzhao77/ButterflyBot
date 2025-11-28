@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import numpy as np
 import json
 import time
 from collections import deque
@@ -12,6 +12,7 @@ from binance.um_futures import UMFutures
 from data.features import add_features
 from config_stage1 import *
 import threading
+
 
 class LiveTraderBinanceFutures:
     def __init__(self, api_key=None, api_secret=None, test_mode=True, leverage=5):
@@ -70,16 +71,31 @@ class LiveTraderBinanceFutures:
         lot_size = next(f for f in info['filters'] if f['filterType'] == 'LOT_SIZE')
         price_filter = next(f for f in info['filters'] if f['filterType'] == 'PRICE_FILTER')
         min_qty = float(lot_size['minQty'])
-        qty_precision = int(round(-pd.np.log10(float(lot_size['stepSize']))))
-        price_precision = int(round(-pd.np.log10(float(price_filter['tickSize']))))
+        qty_precision = int(round(-np.log10(float(lot_size['stepSize']))))
+        price_precision = int(round(-np.log10(float(price_filter['tickSize']))))
         return min_qty, qty_precision, price_precision
 
     def load_historical_data(self):
         df = pd.read_csv(f'{DATA_DIR}/binance_DOGE_USDT_15m.csv')
         df = df.tail(200)
         for _, row in df.iterrows():
+            # 处理不同的时间戳格式
+            timestamp = row['timestamp']
+            # 如果是日期时间字符串，则转换为Unix时间戳
+            if isinstance(timestamp, str):
+                # 尝试解析带时区的日期时间字符串
+                try:
+                    dt = pd.to_datetime(timestamp)
+                    timestamp_ms = int(dt.timestamp() * 1000)  # 转换为毫秒
+                except:
+                    # 如果解析失败，默认为0
+                    timestamp_ms = 0
+            else:
+                # 如果已经是数值，则确保是整数
+                timestamp_ms = int(timestamp)
+
             self.klines.append({
-                'timestamp': row['timestamp'],
+                'timestamp': timestamp_ms,  # 确保时间戳是整数（毫秒）
                 'open': row['open'],
                 'high': row['high'],
                 'low': row['low'],
@@ -93,7 +109,7 @@ class LiveTraderBinanceFutures:
             return
         k = msg['k']
         kline_data = {
-            'timestamp': k['t'],
+            'timestamp': int(k['t']),  # 确保时间戳是整数
             'open': float(k['o']),
             'high': float(k['h']),
             'low': float(k['l']),
@@ -113,7 +129,8 @@ class LiveTraderBinanceFutures:
         price = kline['close']
         if self.position:
             self.entry_bars += 1
-        self.check_entry(price) if not self.position else self.check_exit(price)
+        # 确保价格是浮点数
+        self.check_entry(float(price)) if not self.position else self.check_exit(float(price))
 
     def check_entry(self, current_price):
         df = pd.DataFrame(list(self.klines))
@@ -121,9 +138,10 @@ class LiveTraderBinanceFutures:
         if features_df.empty:
             return
         latest_features = features_df.iloc[-1]
-        feature_cols = [c for c in features_df.columns if c not in ['timestamp', 'close']]
-        X = latest_features[feature_cols].values.reshape(1, -1)
-        prob = self.model.predict(X)[0]
+        # 修复特征列选择，只排除timestamp，保留close作为特征
+        feature_cols = [c for c in features_df.columns if c not in ['timestamp']]
+        X = latest_features[self.model.feature_names_in_].values.reshape(1, -1)
+        prob = self.model.predict_proba(X)[0][1]
 
         signal = None
         if prob > 0.5 + CONFIDENCE_THRESHOLD:
@@ -132,7 +150,7 @@ class LiveTraderBinanceFutures:
             signal = 'short'
 
         if signal:
-            self.open_position(signal, current_price, prob)
+            self.open_position(signal, float(current_price), prob)  # 确保current_price是浮点数
 
     def calculate_amount(self, price):
         position_value = self.cash * MAX_POSITION_RATIO * self.leverage
@@ -163,9 +181,11 @@ class LiveTraderBinanceFutures:
     def check_exit(self, current_price):
         if not self.position:
             return
-        self.highest_price = max(self.highest_price, current_price)
-        self.lowest_price = min(self.lowest_price, current_price)
-        pnl_pct = (current_price - self.entry_price) / self.entry_price if self.position == 'long' else (self.entry_price - current_price) / self.entry_price
+        self.highest_price = max(self.highest_price, float(current_price))  # 确保current_price是浮点数
+        self.lowest_price = min(self.lowest_price, float(current_price))  # 确保current_price是浮点数
+        pnl_pct = (float(current_price) - self.entry_price) / self.entry_price if self.position == 'long' else (
+                                                                                                                           self.entry_price - float(
+                                                                                                                       current_price)) / self.entry_price
         exit_reason = None
 
         if pnl_pct >= TAKE_PROFIT_PCT:
@@ -179,16 +199,17 @@ class LiveTraderBinanceFutures:
             features_df = add_features(df)
             if not features_df.empty:
                 latest_features = features_df.iloc[-1]
-                feature_cols = [c for c in features_df.columns if c not in ['timestamp', 'close']]
+                # 修复特征列选择，只排除timestamp，保留close作为特征
+                feature_cols = [c for c in features_df.columns if c not in ['timestamp']]
                 X = latest_features[feature_cols].values.reshape(1, -1)
-                prob = self.model.predict(X)[0]
+                prob = self.model.predict_proba(X)[0][1]
                 if self.position == 'long' and prob < 0.5 - CONFIDENCE_THRESHOLD:
                     exit_reason = '信号反转(做空)'
                 elif self.position == 'short' and prob > 0.5 + CONFIDENCE_THRESHOLD:
                     exit_reason = '信号反转(做多)'
 
         if exit_reason:
-            self.close_position(current_price, exit_reason)
+            self.close_position(float(current_price), exit_reason)  # 确保current_price是浮点数
 
     def close_position(self, price, reason):
         amount = self.calculate_amount(self.entry_price)
@@ -207,7 +228,8 @@ class LiveTraderBinanceFutures:
 
         self.cash += pnl + amount * price / self.leverage
         self.equity = self.cash
-        self.trades.append({'type': self.position, 'entry': self.entry_price, 'exit': price, 'pnl': pnl, 'reason': reason})
+        self.trades.append(
+            {'type': self.position, 'entry': self.entry_price, 'exit': price, 'pnl': pnl, 'reason': reason})
 
         self.position = None
         self.entry_price = 0
@@ -233,7 +255,7 @@ class LiveTraderBinanceFutures:
                     print(f"  仓位: {side} 数量: {amt} 浮盈: {pnl:.2f} USDT")
                 except Exception as e:
                     print(f"⚠️ 获取账户信息失败: {e}")
-            time.sleep(15)
+            time.sleep(1)
 
     def start(self):
         """启动实时行情 WebSocket，支持断线重连、心跳保活"""
@@ -242,12 +264,15 @@ class LiveTraderBinanceFutures:
 
         def on_open(ws):
             print("✅ WebSocket已连接")
+            # 输出当前交易对信息
+            print(f"📊 当前交易对: {self.symbol}")
+            print(f"📊 时间框架: {self.interval}")
+            print(f"📊 杠杆倍数: {self.leverage}x")
 
         def on_close(ws, code, msg):
             print(f"🛑 WebSocket已关闭 code={code} msg={msg}")
             print("⏳ 3秒后尝试重连...")
             time.sleep(3)
-            self.run_websocket()  # 自动重连
 
         def on_error(ws, error):
             print(f"⚠️ WebSocket错误: {error}")
@@ -270,6 +295,10 @@ class LiveTraderBinanceFutures:
                     self.ws.run_forever(
                         ping_interval=20,  # 每20秒心跳
                         ping_timeout=10,  # 10秒内没回应则断开
+                        reconnect=5,
+                        http_proxy_host="127.0.0.1",
+                        http_proxy_port=7890,
+                        proxy_type="http"  # socks5: "socks5"
                     )
                 except Exception as e:
                     print(f"❌ WebSocket连接异常: {e}")
@@ -281,15 +310,11 @@ class LiveTraderBinanceFutures:
         # 主线程保持运行（否则程序直接退出）
         while True:
             time.sleep(1)
-    def run_websocket(self):
-        self.ws.run_forever(
-            http_proxy_host="127.0.0.1",
-            http_proxy_port=7890,
-            proxy_type="http"  # socks5: "socks5"
-        )
+
 
 if __name__ == "__main__":
     import os
+
     api_key = os.getenv("BINANCE_API_KEY")
     api_secret = os.getenv("BINANCE_API_SECRET")
     trader = LiveTraderBinanceFutures(api_key, api_secret, test_mode=True, leverage=5)

@@ -3,3 +3,4 @@ binance-futures-connector
 ccxt
 pandas
 lightgbm
+numpy
