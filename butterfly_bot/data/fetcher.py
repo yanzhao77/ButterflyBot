@@ -9,7 +9,7 @@ import os
 import ccxt
 import pandas as pd
 
-from config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy, BASE_PATH
+from ..config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy, BASE_PATH
 
 # 创建数据缓存目录
 CACHE_DIR = BASE_PATH / 'cached_data'
@@ -164,3 +164,6 @@ def safe_fetch_ohlcv(exchange, symbol, timeframe='1h', limit=300, since=None, re
             raise
 
     raise RuntimeError("❌ 所有重试失败，请检查网络/API")
+
+def fetch_historical_data(symbol, start_date, end_date):
+    return fetch_ohlcv(symbol, "1h", since=int(pd.Timestamp(start_date).timestamp() * 1000))

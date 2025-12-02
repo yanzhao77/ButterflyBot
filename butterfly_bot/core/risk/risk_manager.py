@@ -27,12 +27,14 @@ class RiskManager:
     def __init__(
         self,
         initial_balance: float,
-        max_drawdown_pct: float = 0.15,  # 最大回撤15%（硬性止损）
-        max_position_ratio: float = 0.25,  # 最大仓位25%
-        max_leverage: int = 5,  # 最大杠杆5倍
-        max_consecutive_losses: int = 5,  # 最大连续亏损5次
-        max_daily_loss_pct: float = 0.05,  # 单日最大亏损5%
-        max_risk_per_trade: float = 0.02,  # 单笔最大风险2%
+        max_drawdown_pct: float = 0.15,
+        max_position_ratio: float = 0.25,
+        max_leverage: int = 5,
+        max_consecutive_losses: int = 5,
+        max_daily_loss_pct: float = 0.05,
+        max_risk_per_trade: float = 0.02,
+        stop_loss_pct: float = 0.02,
+        take_profit_pct: float = 0.03
     ):
         """初始化风险管理器
         
@@ -58,6 +60,8 @@ class RiskManager:
         self.max_consecutive_losses = max_consecutive_losses
         self.max_daily_loss_pct = max_daily_loss_pct
         self.max_risk_per_trade = max_risk_per_trade
+        self.stop_loss_pct = stop_loss_pct
+        self.take_profit_pct = take_profit_pct
         
         # 交易统计
         self.consecutive_losses = 0

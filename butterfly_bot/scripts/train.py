@@ -1,24 +1,26 @@
-# train.py
-"""
-量化模型训练入口（V2+ 融合版）：
-- 工程化结构（argparse + config）
-- 健壮性检查（数据量、目标变量、AUC容错）
-- 验证集训练 + 自动注册最优模型
-"""
-
 import argparse
 import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from sklearn.metrics import roc_auc_score
 
-from config.settings import SYMBOL, TIMEFRAME, TRAIN_TEST_SPLIT_RATIO, REGISTRY_DIR, RETRAIN_LIMIT, RETRAIN_SINCE_DAYS
-from data.features import add_features, get_feature_columns
-from data.fetcher import fetch_ohlcv
-from model.lgb_model import LGBModel
-from model.model_registry import (
+from butterfly_bot.config.settings import (
+    SYMBOL,
+    TIMEFRAME,
+    TRAIN_TEST_SPLIT_RATIO,
+    REGISTRY_DIR,
+    RETRAIN_LIMIT,
+    RETRAIN_SINCE_DAYS,
+)
+from butterfly_bot.data.features import add_features, get_feature_columns
+from butterfly_bot.data.fetcher import fetch_ohlcv
+from butterfly_bot.model.lgb_model import LGBModel
+from butterfly_bot.model.model_registry import (
     save_model_with_metadata,
     find_best_model_by_auc,
-    update_latest_model
+    update_latest_model,
 )
 
 
@@ -29,6 +31,7 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
     since = None
     if since_days is not None:
         from datetime import datetime, timedelta, timezone
+
         dt_since = datetime.now(timezone.utc) - timedelta(days=since_days)
         since = int(dt_since.timestamp() * 1000)
         print(f"⏳ 拉取自 {dt_since.strftime('%Y-%m-%d')} 以来的所有K线数据")
@@ -89,6 +92,7 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
 
     # === 6. 保存模型与元数据 ===
     from datetime import datetime, timezone
+
     metadata = {
         "symbol": symbol,
         "timeframe": timeframe,
@@ -98,7 +102,7 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
         "auc": round(auc, 4),
         "features": feature_cols,
         "limit": limit,
-        "split_ratio": TRAIN_TEST_SPLIT_RATIO
+        "split_ratio": TRAIN_TEST_SPLIT_RATIO,
     }
 
     version = save_model_with_metadata(model, metadata)
@@ -115,13 +119,18 @@ def main(symbol: str, timeframe: str, limit: int = 2000, since_days: int = None)
     return version, auc
 
 
-def train_and_evaluate(symbol: str = None, timeframe: str = None, limit: int = 2000, since_days: int = None):
+def train_and_evaluate(
+    symbol: str = None, timeframe: str = None, limit: int = 2000, since_days: int = None
+):
     """向外暴露的便捷接口，兼容外部调用（如 API / 自动重训练）。
 
     若 symbol/timeframe 未提供则使用 config 中的默认值。
     返回 (version, auc)
     """
-    from config.settings import SYMBOL as CFG_SYMBOL, TIMEFRAME as CFG_TIMEFRAME
+    from butterfly_bot.config.settings import (
+        SYMBOL as CFG_SYMBOL,
+        TIMEFRAME as CFG_TIMEFRAME,
+    )
 
     symbol = symbol or CFG_SYMBOL
     timeframe = timeframe or CFG_TIMEFRAME
@@ -133,8 +142,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="训练量化交易模型（V2+ 融合版）")
     parser.add_argument("--symbol", type=str, default=SYMBOL, help="交易对，如 BTC/USDT")
     parser.add_argument("--timeframe", type=str, default=TIMEFRAME, help="K线周期，如 1h, 15m")
-    parser.add_argument("--limit", type=int, default=RETRAIN_LIMIT, help="获取K线数量（建议 ≥1000）")
-    parser.add_argument("--since_days", type=int, default=RETRAIN_SINCE_DAYS, help="拉取过去 N 天的数据（如 365 表示一年）")
+    parser.add_argument(
+        "--limit", type=int, default=RETRAIN_LIMIT, help="获取K线数量（建议 ≥1000）"
+    )
+    parser.add_argument(
+        "--since_days",
+        type=int,
+        default=RETRAIN_SINCE_DAYS,
+        help="拉取过去 N 天的数据（如 365 表示一年）",
+    )
 
     args = parser.parse_args()
 
@@ -145,7 +161,7 @@ if __name__ == "__main__":
             symbol=args.symbol,
             timeframe=args.timeframe,
             limit=args.limit,
-            since_days=args.since_days
+            since_days=args.since_days,
         )
         print(f"\n✅ 训练成功！版本: {version} | AUC: {auc:.4f}")
     except Exception as e:

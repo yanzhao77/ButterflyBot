@@ -65,14 +65,14 @@ RETRAIN_ON_DEGRADATION = True
 RETRAIN_AUC_DIFF = 0.01
 # 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
 # 重训练拉取历史天数（优化为365天，平衡数据量和训练速度）
-RETRAIN_SINCE_DAYS = 365  # 优化到365天，关注近期市场特征
+RETRAIN_SINCE_DAYS = 30  # 优化到365天，关注近期市场特征
 # 重训练时的最大 K 线条数（fetch limit）
-RETRAIN_LIMIT = 1000000
+RETRAIN_LIMIT = 5000
 # 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
 RETRAIN_ASYNC = True
 RETRAIN_MAX_ATTEMPTS = 2  # 自动重训练最大尝试次数
 
-proxy = 'http://127.0.0.1:7890'  # 替换为你的代理地址（Clash 默认 7890，SS 通常是 1080）
+proxy = None  # 替换为你的代理地址（Clash 默认 7890，SS 通常是 1080）
 
 BASE_PATH = Path(__file__).resolve().parent.parent
 LOG_PATH = BASE_PATH / 'logs'
@@ -86,3 +86,24 @@ MODEL_METRICS_PATH = BASE_PATH / "/backtest/strategy/strategy_metrics.json"
 USE_TRAILING_STOP = True  # 启用跟踪止盈
 TRAILING_STOP_ACTIVATION = 0.02  # 盈利达到2%后启动跟踪（更早启动）
 TRAILING_STOP_DISTANCE = 0.01  # 从最高点回撤1%时止盈（更紧跟踪）
+
+AI_SIGNAL_CONFIG = {
+    "confidence_threshold": CONFIDENCE_THRESHOLD,
+    "cooldown_bars": COOLDOWN_BARS,
+    "trend_filter": TREND_FILTER,
+}
+
+RISK_MANAGEMENT_CONFIG = {
+    "max_risk_per_trade": MAX_RISK_PER_TRADE,
+    "stop_loss_pct": STOP_LOSS_PCT,
+    "take_profit_pct": TAKE_PROFIT_PCT,
+    "max_position_ratio": MAX_POSITION_RATIO,
+}
+
+BACKTEST_CONFIG = {
+    "initial_balance": INITIAL_CASH,
+    "leverage": 1,
+    "contract_type": "spot",
+    "start_date": "2023-11-01",
+    "end_date": "2023-11-30",
+}

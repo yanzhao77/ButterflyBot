@@ -1,16 +1,12 @@
-# strategies/ai_signal_core.py
-"""
-AI 信号核心逻辑：与框架无关的纯策略
-"""
-
+import logging
 from typing import Dict, Any
 
 import pandas as pd
 
-from data.features import add_features, get_feature_columns
-from model.ensemble_model import EnsembleModel
-from model.model_registry import load_latest_model_path
-from config.settings import (
+from ..data.features import add_features, get_feature_columns
+from ..model.ensemble_model import EnsembleModel
+from ..model.model_registry import load_latest_model_path
+from ..config.settings import (
     CONFIDENCE_THRESHOLD,
     SELL_THRESHOLD,
     PROB_EMA_SPAN,
@@ -118,6 +114,8 @@ class AISignalCore:
             # 简单判断：最后一个大于第一个，或相邻增量之和>0
             momentum_ok = (recent[-1] > recent[0]) and (sum([recent[i] - recent[i-1] for i in range(1, len(recent))]) > 0)
 
+        logging.info(f'p_eval: {p_eval:.3f}, buy_th: {buy_th:.3f}, sell_th: {sell_th:.3f}, momentum_ok: {momentum_ok}')
+
         # 生成信号
         if p_eval >= buy_th and momentum_ok:
             self._last_signal_bar = current_bar
@@ -145,6 +143,12 @@ class AISignalCore:
             "reason": reason,
             "timestamp": pd.Timestamp.now()
         }
+
+    def get_signal(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """
+        兼容 TradingEngine 的入口
+        """
+        return self.generate_signal(df)
 
     def reset(self):
         """重置状态（用于回测每轮开始）"""

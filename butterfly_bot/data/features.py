@@ -6,7 +6,7 @@
 import pandas as pd
 import numpy as np
 from typing import List
-from config.settings import TARGET_SHIFT, TARGET_THRESHOLD
+from ..config.settings import TARGET_SHIFT, TARGET_THRESHOLD
 
 
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
