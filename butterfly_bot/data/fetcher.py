@@ -5,11 +5,14 @@
 """
 import time
 import os
+import logging
 
 import ccxt
 import pandas as pd
 
 from ..config.settings import EXCHANGE_NAME, SYMBOL, TIMEFRAME, proxy, BASE_PATH
+
+logger = logging.getLogger(__name__)
 
 # 创建数据缓存目录
 CACHE_DIR = BASE_PATH / 'cached_data'
@@ -32,7 +35,7 @@ def load_cached_data(symbol: str, timeframe: str, exchange_name: str) -> pd.Data
             df.set_index('timestamp', inplace=True)
             return df
         except Exception as e:
-            print(f"加载缓存文件失败: {e}")
+            logger.warning(f"加载缓存文件失败: {e}")
     return pd.DataFrame()
 
 
@@ -41,9 +44,9 @@ def save_data_to_cache(df: pd.DataFrame, symbol: str, timeframe: str, exchange_n
     cache_file = get_cache_filename(symbol, timeframe, exchange_name)
     try:
         df.to_csv(cache_file)
-        print(f"数据已缓存至: {cache_file}")
+        logger.info(f"数据已缓存至: {cache_file}")
     except Exception as e:
-        print(f"保存缓存文件失败: {e}")
+        logger.error(f"保存缓存文件失败: {e}")
 
 
 def fetch_ohlcv(
@@ -69,7 +72,7 @@ def fetch_ohlcv(
     # 首先尝试从缓存加载数据
     df_cached = load_cached_data(symbol, timeframe, exchange_name)
     if not df_cached.empty:
-        print("使用本地缓存数据")
+        logger.info("使用本地缓存数据")
         # 如果需要限制数据量
         if limit:
             return df_cached.tail(limit)
@@ -113,7 +116,7 @@ def fetch_ohlcv(
         ohlcv = all_rows
     except Exception as e:
         raise RuntimeError(f"❌ 从 {exchange_name} 获取 {symbol} {timeframe} 数据失败: {e}")
-    print(f"获取到 {len(ohlcv)} 条数据")
+    logger.info(f"获取到 {len(ohlcv)} 条数据")
     if not ohlcv:
         raise ValueError(f"未获取到 {symbol} 的 K 线数据，请检查交易对和网络")
 
@@ -157,10 +160,10 @@ def safe_fetch_ohlcv(exchange, symbol, timeframe='1h', limit=300, since=None, re
             params = {}  # 可扩展为 {'type': 'spot'} 等
             return exchange.fetch_ohlcv(symbol, timeframe, since=since, limit=limit, params=params)
         except (ccxt.NetworkError, ccxt.ExchangeError) as e:
-            print(f"⚠️ 网络错误 (尝试 {i + 1}/{retries}): {str(e)}")
+            logger.warning(f"网络错误 (尝试 {i + 1}/{retries}): {str(e)}")
             time.sleep(2)  # 等待后重试
         except Exception as e:
-            print(f"💥 未知错误: {str(e)}")
+            logger.error(f"未知错误: {str(e)}")
             raise
 
     raise RuntimeError("❌ 所有重试失败，请检查网络/API")

@@ -66,9 +66,10 @@ class AISignalCore:
         if df_feat[self._feature_cols].isnull().any().any():
             return self._hold_signal("特征含缺失值")
 
-        # 模型预测
+        # 模型预测（只使用训练时的特征列）
         try:
-            prob = float(self.model.predict(df_feat))
+            X = df_feat[self._feature_cols]
+            prob = float(self.model.predict(X))
         except Exception as e:
             return self._hold_signal(f"模型预测失败: {e}")
 
