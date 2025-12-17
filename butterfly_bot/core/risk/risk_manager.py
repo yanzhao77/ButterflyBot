@@ -239,6 +239,25 @@ class RiskManager:
             self.pause_time = datetime.now()
             logger.error(self.pause_reason)
     
+    def calculate_position_size(self, balance: float, current_price: float) -> float:
+        """计算开仓数量
+        
+        Args:
+            balance: 当前余额
+            current_price: 当前价格
+            
+        Returns:
+            开仓数量
+        """
+        if balance <= 0 or current_price <= 0:
+            return 0.0
+        
+        # 使用最大仓位比例计算
+        position_value = balance * self.max_position_ratio
+        amount = position_value / current_price
+        
+        return amount
+    
     def can_trade(self) -> Tuple[bool, str]:
         """检查是否可以交易
         

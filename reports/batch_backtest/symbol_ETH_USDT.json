@@ -1,0 +1,38 @@
+{
+  "config": {
+    "symbol": "ETH/USDT",
+    "start_date": "2025-11-13",
+    "end_date": "2025-12-13",
+    "period_days": 30,
+    "initial_balance": 1000.0,
+    "contract_type": "SPOT",
+    "leverage": 1
+  },
+  "metrics": {
+    "total_return": 0.0,
+    "total_return_pct": 0.0,
+    "annualized_return": 0.0,
+    "annualized_return_pct": 0.0,
+    "monthly_return": 0.0,
+    "monthly_return_pct": 0.0,
+    "final_equity": 1000.0,
+    "total_profit": 0.0,
+    "max_drawdown": 0.0,
+    "max_drawdown_pct": 0.0,
+    "max_drawdown_duration": 0,
+    "volatility": 0.0,
+    "volatility_pct": 0.0,
+    "downside_volatility": 0.0,
+    "downside_volatility_pct": 0.0,
+    "sharpe_ratio": -6.9674692855363144e+16,
+    "sortino_ratio": 0.0,
+    "calmar_ratio": 0.0
+  },
+  "account_info": {
+    "totalWalletBalance": 1000.0
+  },
+  "data_points": 735,
+  "trades_count": 0,
+  "dimension": "symbol",
+  "period": "1M"
+}
