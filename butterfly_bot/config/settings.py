@@ -24,22 +24,22 @@ EXCHANGE_NAME = "binance"
 TIMEFRAME = "15m"  # 支持: 1m, 5m, 15m, 1h, 4h, 1d
 
 # 风控参数（优化后）
-MAX_RISK_PER_TRADE = 0.025  # 单笔最大风险 2.5%
-STOP_LOSS_PCT = 0.02  # 默认止损 2.5%（放宽止损，避免被正常波动扫出）
-TAKE_PROFIT_PCT = 0.03  # 默认止盈 5%（提高止盈目标，盈亏比2:1）
+MAX_RISK_PER_TRADE = 0.02  # 单笔最大风险 2%
+STOP_LOSS_PCT = 0.03  # 默认止损 3%（适度放宽）
+TAKE_PROFIT_PCT = 0.06  # 默认止盈 6%（盈亏比2:1）
 # 风控
 MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
 
-# 策略参数（传递给 AISignalCore/策略）- 优化后（保守版v2）
-CONFIDENCE_THRESHOLD = 0.70  # 买入置信阈值（提高到0.70，大幅降低交易频率）
-SELL_THRESHOLD = 0.38  # 卖出/平仓阈值（保持0.38，避免过早离场）
+# 策略参数（传递给 AISignalCore/策略）- 优化后（v3：基于新模型AUC 0.85）
+CONFIDENCE_THRESHOLD = 0.55  # 买入置信阈值（降低到0.55，增加交易机会）
+SELL_THRESHOLD = 0.45  # 卖出/平仓阈值（调整到0.45，更平衡）
 TREND_FILTER = True
-COOLDOWN_BARS = 10  # 平仓/开仓后的冷却条数（增加到10，约2.5小时）
+COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（降低到5，约1.25小时）
 PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
 TIME_STOP_BARS = 50  # 时间止损：持仓超过N根K线未验证则平仓（延长至50，约12.5小时）
 USE_QUANTILE_THRESH = True  # 使用分位数自适应阈值
-PROB_Q_HIGH = 0.90  # 买入触发的高分位（提高到0.90，极度严格）
-PROB_Q_LOW = 0.35  # 卖出触发的低分位（降低到0.35，避免过早离场）
+PROB_Q_HIGH = 0.75  # 买入触发的高分位（降低到0.75，更合理）
+PROB_Q_LOW = 0.25  # 卖出触发的低分位（降低到0.25，更积极）
 PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
 REQUIRE_P_EMA_UP = True  # 仅当 p_ema 动量向上时允许开多
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
