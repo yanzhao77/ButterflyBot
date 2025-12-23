@@ -1,0 +1,14 @@
+{
+    "symbols": [
+        "DOGE/USDT",
+        "BTC/USDT",
+        "ETH/USDT"
+    ],
+    "timeframe": "15m",
+    "timestamp": "2025-12-22T08:19:26.128298+00:00",
+    "train_size": 3395,
+    "test_size": 1455,
+    "auc": 0.7383038505020948,
+    "feature_count": 51,
+    "model_type": "multi_symbol"
+}

@@ -1,9 +1,11 @@
 # model/lgb_model.py
 """
-LightGBM 模型封装：训练与预测接口
+LightGBM 模型封装：训练与预测接口（支持类别权重平衡）
 """
 
 import lightgbm as lgb
+import numpy as np
+from sklearn.utils.class_weight import compute_sample_weight
 
 
 class LGBModel:
@@ -21,9 +23,25 @@ class LGBModel:
             "random_state": 42
         }
 
-    def train(self, X_train, y_train, X_val=None, y_val=None):
-        """训练模型"""
-        train_data = lgb.Dataset(X_train, label=y_train)
+    def train(self, X_train, y_train, X_val=None, y_val=None, use_class_weight=False):
+        """训练模型
+        
+        Args:
+            X_train: 训练特征
+            y_train: 训练标签
+            X_val: 验证特征
+            y_val: 验证标签
+            use_class_weight: 是否使用类别权重平衡
+        """
+        # 计算类别权重
+        sample_weight = None
+        if use_class_weight:
+            sample_weight = compute_sample_weight('balanced', y_train)
+            print(f"✅ 启用类别权重平衡")
+            print(f"   正样本平均权重: {sample_weight[y_train==1].mean():.2f}")
+            print(f"   负样本平均权重: {sample_weight[y_train==0].mean():.2f}")
+        
+        train_data = lgb.Dataset(X_train, label=y_train, weight=sample_weight)
         valid_sets = [train_data]
         valid_names = ["train"]
 

@@ -2,35 +2,35 @@
   {
     "config": {
       "symbol": "DOGE/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
+      "start_date": "2025-11-22",
+      "end_date": "2025-12-22",
       "period_days": 30,
       "initial_balance": 1000.0,
       "contract_type": "SPOT",
       "leverage": 1
     },
     "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.9769702553767188,
-      "annualized_return_pct": -97.69702553767188,
-      "monthly_return": -0.26966167101289507,
-      "monthly_return_pct": -26.966167101289507,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
+      "total_return": -0.2873933118791101,
+      "total_return_pct": -28.73933118791101,
+      "annualized_return": -0.983794079233157,
+      "annualized_return_pct": -98.3794079233157,
+      "monthly_return": -0.2907388978196733,
+      "monthly_return_pct": -29.07388978196733,
+      "final_equity": 712.6066881208899,
+      "total_profit": -287.3933118791101,
+      "max_drawdown": -0.3306282356233385,
+      "max_drawdown_pct": 33.06282356233385,
       "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -3.4519242444416607
+      "volatility": 0.17211027362317102,
+      "volatility_pct": 17.211027362317104,
+      "downside_volatility": 0.24640654773473328,
+      "downside_volatility_pct": 24.64065477347333,
+      "sharpe_ratio": -0.5621361517203627,
+      "sortino_ratio": -0.3926413797665094,
+      "calmar_ratio": -2.975529532069138
     },
     "account_info": {
-      "totalWalletBalance": 733.4890359413521
+      "totalWalletBalance": 712.6066881208899
     },
     "data_points": 1000,
     "trades_count": 0,
@@ -40,35 +40,35 @@
   {
     "config": {
       "symbol": "DOGE/USDT",
-      "start_date": "2025-09-19",
-      "end_date": "2025-12-18",
+      "start_date": "2025-09-23",
+      "end_date": "2025-12-22",
       "period_days": 90,
       "initial_balance": 1000.0,
       "contract_type": "SPOT",
       "leverage": 1
     },
     "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.7154907609813983,
-      "annualized_return_pct": -71.54907609813984,
-      "monthly_return": -0.09944958401875692,
-      "monthly_return_pct": -9.944958401875692,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
+      "total_return": -0.2873933118791101,
+      "total_return_pct": -28.73933118791101,
+      "annualized_return": -0.7469393784347262,
+      "annualized_return_pct": -74.69393784347263,
+      "monthly_return": -0.10819744101796969,
+      "monthly_return_pct": -10.819744101796969,
+      "final_equity": 712.6066881208899,
+      "total_profit": -287.3933118791101,
+      "max_drawdown": -0.3306282356233385,
+      "max_drawdown_pct": 33.06282356233385,
       "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -2.5280400205770257
+      "volatility": 0.17211027362317102,
+      "volatility_pct": 17.211027362317104,
+      "downside_volatility": 0.24640654773473328,
+      "downside_volatility_pct": 24.64065477347333,
+      "sharpe_ratio": -0.5621361517203627,
+      "sortino_ratio": -0.3926413797665094,
+      "calmar_ratio": -2.2591518145040155
     },
     "account_info": {
-      "totalWalletBalance": 733.4890359413521
+      "totalWalletBalance": 712.6066881208899
     },
     "data_points": 1000,
     "trades_count": 0,
@@ -78,267 +78,39 @@
   {
     "config": {
       "symbol": "DOGE/USDT",
-      "start_date": "2025-06-21",
-      "end_date": "2025-12-18",
+      "start_date": "2025-06-25",
+      "end_date": "2025-12-22",
       "period_days": 180,
       "initial_balance": 1000.0,
       "contract_type": "SPOT",
       "leverage": 1
     },
     "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.46660592521232336,
-      "annualized_return_pct": -46.66059252123234,
-      "monthly_return": -0.051026651595924455,
-      "monthly_return_pct": -5.102665159592446,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
+      "total_return": -0.2873933118791101,
+      "total_return_pct": -28.73933118791101,
+      "annualized_return": -0.49694868893394817,
+      "annualized_return_pct": -49.69486889339482,
+      "monthly_return": -0.055647015686385304,
+      "monthly_return_pct": -5.56470156863853,
+      "final_equity": 712.6066881208899,
+      "total_profit": -287.3933118791101,
+      "max_drawdown": -0.3306282356233385,
+      "max_drawdown_pct": 33.06282356233385,
       "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -1.648656442687164
+      "volatility": 0.17211027362317102,
+      "volatility_pct": 17.211027362317104,
+      "downside_volatility": 0.24640654773473328,
+      "downside_volatility_pct": 24.64065477347333,
+      "sharpe_ratio": -0.5621361517203627,
+      "sortino_ratio": -0.3926413797665094,
+      "calmar_ratio": -1.5030437070719116
     },
     "account_info": {
-      "totalWalletBalance": 733.4890359413521
+      "totalWalletBalance": 712.6066881208899
     },
     "data_points": 1000,
     "trades_count": 0,
     "dimension": "time",
     "period": "6M"
-  },
-  {
-    "config": {
-      "symbol": "DOGE/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "SPOT",
-      "leverage": 1
-    },
-    "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.9769702553767188,
-      "annualized_return_pct": -97.69702553767188,
-      "monthly_return": -0.26966167101289507,
-      "monthly_return_pct": -26.966167101289507,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
-      "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -3.4519242444416607
-    },
-    "account_info": {
-      "totalWalletBalance": 733.4890359413521
-    },
-    "data_points": 1000,
-    "trades_count": 0,
-    "dimension": "symbol",
-    "period": "1M"
-  },
-  {
-    "config": {
-      "symbol": "BTC/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "SPOT",
-      "leverage": 1
-    },
-    "metrics": {
-      "total_return": -0.26048251383697846,
-      "total_return_pct": -26.048251383697846,
-      "annualized_return": -0.9745586914741897,
-      "annualized_return_pct": -97.45586914741897,
-      "monthly_return": -0.26357540079710606,
-      "monthly_return_pct": -26.357540079710606,
-      "final_equity": 739.5174861630215,
-      "total_profit": -260.48251383697846,
-      "max_drawdown": -0.2709650276739569,
-      "max_drawdown_pct": 27.09650276739569,
-      "max_drawdown_duration": 0,
-      "volatility": 0.159624791390827,
-      "volatility_pct": 15.9624791390827,
-      "downside_volatility": 0.3678338206509086,
-      "downside_volatility_pct": 36.783382065090855,
-      "sharpe_ratio": -0.7383329746411822,
-      "sortino_ratio": -0.32040622813180214,
-      "calmar_ratio": -3.596621674169861
-    },
-    "account_info": {
-      "totalWalletBalance": 739.5174861630215
-    },
-    "data_points": 735,
-    "trades_count": 0,
-    "dimension": "symbol",
-    "period": "1M"
-  },
-  {
-    "config": {
-      "symbol": "ETH/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "SPOT",
-      "leverage": 1
-    },
-    "metrics": {
-      "total_return": 0.0,
-      "total_return_pct": 0.0,
-      "annualized_return": 0.0,
-      "annualized_return_pct": 0.0,
-      "monthly_return": 0.0,
-      "monthly_return_pct": 0.0,
-      "final_equity": 1000.0,
-      "total_profit": 0.0,
-      "max_drawdown": 0.0,
-      "max_drawdown_pct": 0.0,
-      "max_drawdown_duration": 0,
-      "volatility": 0.0,
-      "volatility_pct": 0.0,
-      "downside_volatility": 0.0,
-      "downside_volatility_pct": 0.0,
-      "sharpe_ratio": -6.9674692855363144e+16,
-      "sortino_ratio": 0.0,
-      "calmar_ratio": 0.0
-    },
-    "account_info": {
-      "totalWalletBalance": 1000.0
-    },
-    "data_points": 735,
-    "trades_count": 0,
-    "dimension": "symbol",
-    "period": "1M"
-  },
-  {
-    "config": {
-      "symbol": "DOGE/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "SPOT",
-      "leverage": 1
-    },
-    "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.9769702553767188,
-      "annualized_return_pct": -97.69702553767188,
-      "monthly_return": -0.26966167101289507,
-      "monthly_return_pct": -26.966167101289507,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
-      "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -3.4519242444416607
-    },
-    "account_info": {
-      "totalWalletBalance": 733.4890359413521
-    },
-    "data_points": 1000,
-    "trades_count": 0,
-    "dimension": "leverage",
-    "period": "1M"
-  },
-  {
-    "config": {
-      "symbol": "DOGE/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "USDT_M",
-      "leverage": 3
-    },
-    "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.9769702553767188,
-      "annualized_return_pct": -97.69702553767188,
-      "monthly_return": -0.26966167101289507,
-      "monthly_return_pct": -26.966167101289507,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
-      "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -3.4519242444416607
-    },
-    "account_info": {
-      "totalWalletBalance": 733.4890359413521
-    },
-    "data_points": 1000,
-    "trades_count": 0,
-    "dimension": "leverage",
-    "period": "1M"
-  },
-  {
-    "config": {
-      "symbol": "DOGE/USDT",
-      "start_date": "2025-11-18",
-      "end_date": "2025-12-18",
-      "period_days": 30,
-      "initial_balance": 1000.0,
-      "contract_type": "USDT_M",
-      "leverage": 5
-    },
-    "metrics": {
-      "total_return": -0.26651096405864794,
-      "total_return_pct": -26.651096405864795,
-      "annualized_return": -0.9769702553767188,
-      "annualized_return_pct": -97.69702553767188,
-      "monthly_return": -0.26966167101289507,
-      "monthly_return_pct": -26.966167101289507,
-      "final_equity": 733.4890359413521,
-      "total_profit": -266.5109640586479,
-      "max_drawdown": -0.28302192811729593,
-      "max_drawdown_pct": 28.302192811729594,
-      "max_drawdown_duration": 0,
-      "volatility": 0.149572035541399,
-      "volatility_pct": 14.9572035541399,
-      "downside_volatility": 0.24734794179045452,
-      "downside_volatility_pct": 24.73479417904545,
-      "sharpe_ratio": -0.6317616289846135,
-      "sortino_ratio": -0.3820281347003525,
-      "calmar_ratio": -3.4519242444416607
-    },
-    "account_info": {
-      "totalWalletBalance": 733.4890359413521
-    },
-    "data_points": 1000,
-    "trades_count": 0,
-    "dimension": "leverage",
-    "period": "1M"
   }
 ]

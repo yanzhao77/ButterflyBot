@@ -111,10 +111,10 @@ def main():
     print(f"📊 训练集: {len(X_train)} | 测试集: {len(X_test)}")
     print("=" * 60)
     
-    # 训练模型
-    print("\n🚀 开始训练模型...")
+    # 训练模型（使用类别权重平衡）
+    print("🚀 开始训练模型（启用类别权重平衡）...")
     model = LGBModel()
-    model.train(X_train, y_train, X_val=X_test, y_val=y_test)
+    model.train(X_train, y_train, X_test, y_test, use_class_weight=True)
     
     # 评估模型
     print("\n📈 评估模型性能...")

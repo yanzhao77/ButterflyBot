@@ -31,21 +31,21 @@ TAKE_PROFIT_PCT = 0.06  # 默认止盈 6%（盈亏比2:1）
 MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
 
 # 策略参数（传递给 AISignalCore/策略）- 优化后（v3：基于新模型AUC 0.85）
-CONFIDENCE_THRESHOLD = 0.55  # 买入置信阈值（降低到0.55，增加交易机会）
-SELL_THRESHOLD = 0.45  # 卖出/平仓阈值（调整到0.45，更平衡）
+CONFIDENCE_THRESHOLD = 0.30  # 买入置信阈值（降低到0.30，大幅增加交易机会）
+SELL_THRESHOLD = 0.20  # 卖出/平仓阈值（调整到0.20，更积极）
 TREND_FILTER = True
 COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（降低到5，约1.25小时）
 PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
 TIME_STOP_BARS = 50  # 时间止损：持仓超过N根K线未验证则平仓（延长至50，约12.5小时）
-USE_QUANTILE_THRESH = True  # 使用分位数自适应阈值
+USE_QUANTILE_THRESH = False  # 禁用分位数阈值，使用固定阈值
 PROB_Q_HIGH = 0.75  # 买入触发的高分位（降低到0.75，更合理）
 PROB_Q_LOW = 0.25  # 卖出触发的低分位（降低到0.25，更积极）
 PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
-REQUIRE_P_EMA_UP = True  # 仅当 p_ema 动量向上时允许开多
+REQUIRE_P_EMA_UP = False  # 禁用动量过滤，允许所有信号
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
 TRADE_ONLY_ON_CANDLE_CLOSE = True  # 仅在K线闭合时交易；调试可设为 False 支持同K线内交易
-TARGET_SHIFT = 4  # 优化v3：预测未来4根K线（1小时，平衡噪音和机会）
-TARGET_THRESHOLD = 0.015  # 优化v3：涨幅阈值1.5%（更容易达到，增加正样本）
+TARGET_SHIFT = 2  # 优化v4：预测未来2根K线（30分钟，减少噪音）
+TARGET_THRESHOLD = 0.005  # 优化v4：涨幅阈值0.5%（增加正样本比例）
 
 # 训练参数
 TRAIN_TEST_SPLIT_RATIO = 0.7  # 80% 训练，20% 测试（时间顺序）
