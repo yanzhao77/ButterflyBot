@@ -93,11 +93,15 @@ AI_SIGNAL_CONFIG = {
     "trend_filter": TREND_FILTER,
 }
 
+# 风险管理配置
+MAX_DRAWDOWN = 0.50  # 最大回撤比例（临时调高到50%用于调试）
+
 RISK_MANAGEMENT_CONFIG = {
     "max_risk_per_trade": MAX_RISK_PER_TRADE,
     "stop_loss_pct": STOP_LOSS_PCT,
     "take_profit_pct": TAKE_PROFIT_PCT,
     "max_position_ratio": MAX_POSITION_RATIO,
+    "max_drawdown_pct": MAX_DRAWDOWN,  # 添加回撤限制
 }
 
 BACKTEST_CONFIG = {

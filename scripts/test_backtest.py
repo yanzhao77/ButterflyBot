@@ -39,6 +39,9 @@ def run_backtest(symbol, initial_balance, leverage, contract_type):
         current_price = row["close"]
         timestamp = index
         
+        # 更新broker的数据（截止到当前时间点）
+        broker.data = data.loc[:index]
+        
         # 获取信号
         signal_data = strategy.get_signal(data.loc[:index])
         signal = signal_data["signal"]

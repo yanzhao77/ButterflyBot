@@ -64,9 +64,13 @@ class TradingEngine:
             return False
         
         try:
-            # 更新风险管理器的余额信息
-            current_balance = self.broker.get_balance()
+            # 更新风险管理器的余额信息（使用总资产而不是现金余额）
+            if hasattr(self.broker, 'get_total_value'):
+                current_balance = self.broker.get_total_value(self.symbol)
+            else:
+                current_balance = self.broker.get_balance()
             self.risk_manager.update_balance(current_balance)
+            logger.debug(f"💰 更新余额: {current_balance:.2f}")
             
             # 检查是否可以交易
             can_trade, reason = self.risk_manager.can_trade()
