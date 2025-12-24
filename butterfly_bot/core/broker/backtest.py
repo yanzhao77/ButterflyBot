@@ -117,7 +117,13 @@ class BacktestBroker(BaseBroker):
         logger.info(f"{'='*60}\n")
         return {"status": "FILLED"}
 
-    def close_position(self, symbol):
+    def close_position(self, symbol, current_price=None):
+        """平仓
+        
+        Args:
+            symbol: 交易对
+            current_price: 当前价格（可选，如果提供则使用，否则从数据中获取）
+        """
         if self.position["size"] > 0:
             return self.place_order(symbol, OrderSide.SELL, self.position["size"], OrderType.MARKET)
         return {"status": "NO_POSITION"}
