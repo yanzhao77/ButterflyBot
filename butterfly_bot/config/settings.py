@@ -32,7 +32,7 @@ MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口
 
 # 策略参数（传递给 AISignalCore/策略）- 优化后（v3：基于新模型AUC 0.85）
 CONFIDENCE_THRESHOLD = 0.30  # 买入置信阈值（降低到0.30，大幅增加交易机会）
-SELL_THRESHOLD = 0.20  # 卖出/平仓阈值（调整到0.20，更积极）
+SELL_THRESHOLD = 0.45  # 卖出/平仓阈值（调整到0.45，匹配模型预测概率分布）
 TREND_FILTER = True
 COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（降低到5，约1.25小时）
 PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
