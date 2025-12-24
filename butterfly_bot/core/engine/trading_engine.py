@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class TradingEngine:
     """交易引擎，负责信号处理和订单执行"""
     
-    def __init__(self, broker, risk_manager, symbol: str, get_signal_func: Callable):
+    def __init__(self, broker, risk_manager, symbol: str, get_signal_func: Callable, strategy=None):
         """初始化交易引擎
         
         Args:
@@ -20,11 +20,13 @@ class TradingEngine:
             risk_manager: 风险管理器实例
             symbol: 交易对
             get_signal_func: 信号生成函数
+            strategy: 策略实例（可选，用于更新持仓状态）
         """
         self.broker = broker
         self.risk_manager = risk_manager
         self.symbol = symbol
         self.get_signal = get_signal_func
+        self.strategy = strategy
         self.is_running = False
         
         logger.info(f"交易引擎初始化: 交易对={symbol}")
@@ -161,6 +163,10 @@ class TradingEngine:
             
             if order:
                 logger.info(f"买入成功: 订单ID={order.get('order_id', 'N/A')}")
+                # 更新策略的持仓状态
+                if hasattr(self.strategy, 'update_position_status'):
+                    self.strategy.update_position_status(True, current_price)
+                    logger.debug(f"📍 已更新策略持仓状态: 开仓价格={current_price:.5f}")
                 return True
             else:
                 logger.error("买入失败: 订单返回为空")
@@ -182,6 +188,10 @@ class TradingEngine:
             
             if success:
                 logger.info("卖出平仓成功")
+                # 更新策略的持仓状态
+                if hasattr(self.strategy, 'update_position_status'):
+                    self.strategy.update_position_status(False)
+                    logger.debug(f"📍 已更新策略持仓状态: 平仓")
                 return True
             else:
                 logger.error("卖出平仓失败")

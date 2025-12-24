@@ -31,7 +31,7 @@ def run_backtest(symbol, initial_balance, leverage, contract_type):
     broker = BacktestBroker(initial_balance, leverage, contract_type, data)
     risk_manager = RiskManager(initial_balance, **RISK_MANAGEMENT_CONFIG)
     strategy = AISignalCore(**AI_SIGNAL_CONFIG)
-    engine = TradingEngine(broker, risk_manager, symbol, strategy.get_signal)
+    engine = TradingEngine(broker, risk_manager, symbol, strategy.get_signal, strategy)
 
     # 3. 运行回测
     engine.start()
