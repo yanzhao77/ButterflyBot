@@ -250,16 +250,26 @@ class AISignalCore:
         buy_th = float(CONFIDENCE_THRESHOLD)
         sell_th = float(SELL_THRESHOLD)
 
-        # 趋势过滤
+        # 趋势过滤（优化：使用MA20更灵敏）
         if self.trend_filter:
             close = df["close"].iloc[-1]
-            ma50 = df_feat.get("ma50", pd.Series([close])).iloc[-1]
-            if pd.isna(ma50):
-                ma50 = close
+            # 优先使用MA20，如果没有则使用MA50
+            ma20 = df_feat.get("ma20", df_feat.get("ma50", pd.Series([close]))).iloc[-1]
+            if pd.isna(ma20):
+                ma20 = close
             
-            if p_eval > 0.5 and close < ma50:
-                logger.debug(f"❌ 趋势过滤阻止买入 (价格 < MA50)")
-                return self._hold_signal("趋势过滤（价格 < MA50）", prob)
+            if p_eval > 0.5 and close < ma20:
+                logger.debug(f"❌ 趋势过滤阻止买入 (价格 {close:.5f} < MA20 {ma20:.5f})")
+                return self._hold_signal(f"趋势过滤（价格 < MA20）", prob)
+            
+            # 增加RSI动量确认
+            rsi = df_feat.get("rsi", pd.Series([50])).iloc[-1]
+            if pd.isna(rsi):
+                rsi = 50
+            
+            if p_eval > 0.5 and rsi < 50:
+                logger.debug(f"❌ RSI过滤阻止买入 (RSI {rsi:.2f} < 50)")
+                return self._hold_signal(f"RSI过滤（RSI < 50）", prob)
 
         # 动量过滤
         momentum_ok = True
