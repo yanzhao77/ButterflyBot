@@ -1,7 +1,7 @@
 # 🦋 ButterflyBot - AI加密货币量化交易系统
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green)](LICENSE)
 [![LightGBM](https://img.shields.io/badge/LightGBM-AI%20Model-orange)](https://lightgbm.readthedocs.io/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](https://github.com/yanzhao77/ButterflyBot)
 
@@ -339,7 +339,7 @@ class MyStrategy:
 
 ## 📜 许可证
 
-本项目采用 [MIT 许可证](LICENSE)。
+本项目采用 [Apache-2.0 许可证](LICENSE)。
 
 ---
 
