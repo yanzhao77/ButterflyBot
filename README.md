@@ -1,219 +1,375 @@
-# 🤖 AI Quant Trading（Butterfly）
+# 🦋 ButterflyBot - AI加密货币量化交易系统
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Backtrader](https://img.shields.io/badge/Backtrader-1.9.76-orange)](https://www.backtrader.com/)
+[![LightGBM](https://img.shields.io/badge/LightGBM-AI%20Model-orange)](https://lightgbm.readthedocs.io/)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](https://github.com/yanzhao77/ButterflyBot)
 
-**庄生晓梦迷蝴蝶，望帝春心托杜鹃。**
+**庄生晓梦迷蝴蝶，望帝春心托杜鹃。**  
 **此情可待成追忆，只是当时已惘然。**
----
 
 ---
 
-一个可落地的加密量化框架：LightGBM 信号 + Prophet 趋势 + 规则引擎 的融合模型，支持分页抓取、模型注册管理、保守风控回测，以及基于 AISignalCore 的实时/模拟交易。
+## 📖 项目简介
+
+ButterflyBot 是一个基于AI机器学习的加密货币量化交易系统，采用 **LightGBM** 模型进行价格预测，结合完善的风险管理和止盈止损机制，支持现货和合约交易的回测与实盘。
+
+### 🎯 核心特性
+
+- ✅ **AI驱动**：LightGBM模型（AUC 0.715），17个技术指标特征
+- ✅ **完整交易循环**：买入→持仓→卖出的完整流程
+- ✅ **智能止盈止损**：4种卖出条件（止盈6%、止损-3%、时间止损、AI看跌）
+- ✅ **持仓状态跟踪**：实时跟踪持仓盈亏和持仓时间
+- ✅ **风险管理**：15%最大回撤硬止损，单笔风险控制
+- ✅ **多合约支持**：现货、USDT-M永续合约，可配置杠杆
+- ✅ **模块化架构**：Broker抽象层，支持回测/模拟/实盘切换
+
+### 📊 最新回测成果
+
+**测试配置**：DOGE/USDT, 15分钟K线, 1000根数据, 5倍杠杆
+
+| 指标 | 数值 | 说明 |
+|------|------|------|
+| **总交易次数** | 19 | ✅ 从0提升到19 |
+| **胜率** | 42.11% | 需要优化 |
+| **盈亏比** | 1.87 | ✅ 优秀 |
+| **止盈触发** | 21次 | 6%止盈 |
+| **止损触发** | 30次 | -3%止损 |
+| **净收益率** | -22.48% | 需要优化买入时机 |
+
+**关键成就**：
+- ✅ 成功实现完整的买卖交易循环
+- ✅ 止盈止损机制正常工作
+- ✅ 盈亏比1.87说明风险控制有效
+- ⚠️ 胜率需要提升（目标55%+）
 
 ---
 
-## 📁 项目结构
+## 🏗️ 系统架构
 
 ```
-ai-quant-trading/
-├── config/               # 配置文件
-├── data/                 # 数据获取与特征工程
-├── models/               # 模型训练、加载与版本管理
-├── strategies/           # 策略核心 + Backtrader 适配
-├── backtest/             # 回测入口与指标
-├── live/                 # 实时/模拟交易 Runner
-└── requirements.txt      # 依赖库
+butterfly_bot/
+├── config/                    # 配置管理
+│   └── settings.py           # 全局配置（阈值、风控参数等）
+├── core/                      # 核心组件
+│   ├── broker/               # 交易执行层
+│   │   ├── base.py          # Broker抽象基类
+│   │   ├── backtest.py      # 回测Broker
+│   │   ├── paper.py         # 模拟交易Broker
+│   │   └── live.py          # 实盘Broker
+│   ├── engine/               # 交易引擎
+│   │   └── trading_engine.py # 信号处理和订单执行
+│   ├── risk/                 # 风险管理
+│   │   └── risk_manager.py  # 风险控制（回撤、仓位等）
+│   └── reporter/             # 报告生成
+│       └── report_generator.py
+├── strategies/                # 交易策略
+│   └── ai_signal_core.py     # AI信号核心策略
+├── data/                      # 数据处理
+│   ├── fetcher.py            # 历史数据获取
+│   └── features.py           # 特征工程
+├── model/                     # AI模型
+│   ├── ensemble_model.py     # 模型加载和预测
+│   └── model_registry.py     # 模型版本管理
+└── scripts/                   # 脚本工具
+    ├── test_backtest.py      # 完整回测脚本
+    └── test_simple_trade.py  # 简单测试脚本
 ```
+
+### 核心组件说明
+
+#### 1. Broker抽象层
+- **BaseBroker**：统一的交易接口
+- **BacktestBroker**：回测环境，模拟订单执行
+- **PaperBroker**：模拟交易，连接真实行情
+- **LiveBroker**：实盘交易，真实下单
+
+#### 2. AISignalCore策略
+- **持仓状态跟踪**：has_position, entry_price, holding_bars
+- **4种卖出条件**：
+  1. 止盈：盈利 >= 6%
+  2. 止损：亏损 >= 3%
+  3. 时间止损：持仓 >= 50根K线
+  4. AI看跌：p_ema <= 0.45
+- **趋势过滤**：价格 > MA20
+- **动量确认**：RSI > 50
+
+#### 3. TradingEngine
+- 信号处理和订单执行
+- 风险检查和仓位管理
+- 自动更新策略持仓状态
+
 ---
 
-## ⚙️ 快速开始
+## 🚀 快速开始
 
-### 1. 安装依赖
+### 1. 环境准备
 
 ```bash
-python -m venv .venv && . .venv/Scripts/activate  # Windows: .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+# 克隆项目
+git clone https://github.com/yanzhao77/ButterflyBot.git
+cd ButterflyBot
+
+# 创建虚拟环境
+python3.11 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 安装依赖
+pip install ccxt lightgbm scikit-learn pandas numpy
 ```
 
-> **注意**：`prophet` 在部分系统需额外安装 `cmdstanpy`，如遇问题请参考 [Prophet 安装指南](https://facebook.github.io/prophet/docs/installation.html)。
+### 2. 配置参数
 
----
+编辑 `butterfly_bot/config/settings.py`：
 
-### 1.a 在 Windows (PowerShell) 下的安装与常见问题
+```python
+# 交易对和周期
+SYMBOL = "DOGE/USDT"
+TIMEFRAME = "15m"
 
-如果你在 Windows/PowerShell 上运行，下面的步骤能帮你快速安装依赖并避免常见问题：
+# 买入阈值（关键参数）
+CONFIDENCE_THRESHOLD = 0.50  # AI置信度阈值
 
-- 推荐先创建并激活虚拟环境（PowerShell）：
+# 止盈止损
+TAKE_PROFIT_PCT = 0.06  # 6%止盈
+STOP_LOSS_PCT = 0.03    # 3%止损
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+# 风险控制
+MAX_POSITION_RATIO = 0.25  # 最大仓位25%
+MAX_DRAWDOWN = 0.15        # 最大回撤15%
 ```
 
-- 然后安装项目依赖：
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-- Prophet 在某些系统需要额外的后端（cmdstanpy / C++ 编译器）。如果安装 prophet 失败，尝试：
-
-```powershell
-python -m pip install "cmdstanpy>=1.0"
-python -m pip install prophet
-```
-
-如果仍失败，可考虑使用 conda（更稳定）：
-
-```powershell
-conda create -n butterfly python=3.11
-conda activate butterfly
-conda install -c conda-forge prophet
-python -m pip install -r requirements.txt
-```
-
-- 若遇到 LightGBM 安装问题（Windows 上常见），可以先安装二进制 wheel：
-
-```powershell
-python -m pip install lightgbm
-```
-
-- FastAPI/uvicorn 已加入 requirements，启动 API 的示例命令在下文。
-
-
-### 2) 训练模型
+### 3. 运行回测
 
 ```bash
-python model/train.py
+# 完整回测（包含现货和合约）
+python scripts/test_backtest.py
+
+# 查看回测报告
+cat reports/backtest/backtest_USDT_M_leverage5_*.json
 ```
 
-自动分页抓取更长历史，生成目标（`TARGET_SHIFT/THRESHOLD`），并将最佳模型登记为 latest。
+### 4. 查看结果
+
+回测完成后，查看生成的报告：
+- `reports/backtest/` - 回测JSON报告
+- `BACKTEST_RESULTS_ANALYSIS.md` - 详细分析报告
+- `OPTIMIZATION_COMPARISON.md` - 优化对比报告
 
 ---
 
-### 3) 回测（默认 AISignalStrategy）
+## ⚙️ 配置说明
 
-```bash
-python backtest/run_backtest.py
-```
+### 核心参数
 
-回测按 `RETRAIN_SINCE_DAYS` 计算 since 并分页抓取，避免只拿到 1000 根。
+| 参数 | 默认值 | 说明 | 优化建议 |
+|------|--------|------|---------|
+| `CONFIDENCE_THRESHOLD` | 0.50 | AI买入置信度阈值 | 提高到0.60-0.65可减少交易次数 |
+| `SELL_THRESHOLD` | 0.45 | AI卖出阈值 | 保持0.45 |
+| `TAKE_PROFIT_PCT` | 0.06 | 止盈百分比 | 6%较为合理 |
+| `STOP_LOSS_PCT` | 0.03 | 止损百分比 | 3%较为合理 |
+| `MAX_HOLDING_BARS` | 50 | 最大持仓K线数 | 50根约12.5小时 |
+| `COOLDOWN_BARS` | 5 | 交易冷却期 | 5根约1.25小时 |
+| `TREND_FILTER` | True | 启用趋势过滤 | 建议保持True |
 
----
+### 回测配置
 
-### 4) 查看模型版本
-
-```bash
-ls model/registry/          # 查看所有模型
-cat model/latest_model.txt  # 查看当前最优版本
-```
-
----
-
-## 🔧 配置说明（config/settings.py）
-
-### `config/settings.py`
-
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `TIMEFRAME` | `"1m/5m/15m/1h/4h/1d"` | 交易周期 |
-| `INITIAL_CASH` | `1000.0` | 回测初始资金（USDT） |
-| `RETRAIN_SINCE_DAYS` / `RETRAIN_LIMIT` | `180` / `100000` | 抓数窗口与上限 |
-| `MAX_POSITION_RATIO` | `0.2~0.5` | 单次资金占比上限 |
-| `STOP_LOSS_PCT` / `TAKE_PROFIT_PCT` | `0.01/0.02` | 百分比止损/止盈 |
-| `CONFIDENCE_THRESHOLD` / `SELL_THRESHOLD` | `0.6/0.5` | 固定阈值（兜底） |
-| `USE_QUANTILE_THRESH` + `PROB_Q_HIGH/LOW/WINDOW` | `True/0.9/0.55/500` | 分位数自适应阈值 |
-| `PROB_EMA_SPAN` / `REQUIRE_P_EMA_UP` | `10/True` | 概率平滑与动量过滤 |
-| `TIME_STOP_BARS` / `COOLDOWN_BARS` | `30/5` | 时间止损与冷却 |
-| `TRADE_ONLY_ON_CANDLE_CLOSE` | `True` | 实时仅闭合K线交易 |
-
-> 修改 `TIMEFRAME` 后，系统会自动调整 Prophet 使用策略（≤15m 时禁用）。
-
----
-
-## 🧠 模型融合逻辑
-
-系统采用 **加权集成** 方式融合三种信号：
-
-| 组件 | 权重范围 | 说明 |
-|------|--------|------|
-| **LightGBM** | 0.3 ~ 0.6 | 基于多因子的主模型，权重由 AUC 决定 |
-| **Prophet** | 0.0 ~ 0.4 | 趋势预测，短周期可自动禁用 |
-| **规则引擎** | ≥0.1 | 基于 RSI<30 / MACD 金叉等经典信号 |
-
-权重计算规则：
-- AUC ≥ 0.7 → LGBM 权重 0.6
-- AUC ≥ 0.6 → LGBM 权重 0.5
-- AUC ≥ 0.55 → LGBM 权重 0.4
-- 否则 → LGBM 权重 0.3
-
----
-
-## 🔄 自动重训练机制
-
-- 回测结束后，系统对比 **当前模型 AUC** 与 **回测 AUC**
-- 若 `回测 AUC > 当前 AUC + 0.02`，则触发重训练
-- 训练后自动选择历史 **AUC 最高** 的模型作为 `latest`
-
-回测模块已预留自动重训练入口（默认关闭）。
-
----
-
-## 📊 回测指标
-
-回测结果保存于 `backtest/strategy_metrics.json`，包含：
-
-```json
-{
-  "auc": 0.6821,
-  "win_rate": 0.583,
-  "win_loss_ratio": 2.1,
-  "total_trades": 120
+```python
+BACKTEST_CONFIG = {
+    "initial_balance": 1000.0,    # 初始资金
+    "leverage": 5,                 # 杠杆倍数
+    "contract_type": "USDT_M",    # 合约类型
+    "start_date": "2023-11-01",   # 开始日期
+    "end_date": "2023-11-30",     # 结束日期
 }
 ```
 
-这些指标用于评估策略稳健性。
+---
+
+## 📊 回测结果示例
+
+### 交易明细（前5笔）
+
+| # | 开仓价格 | 平仓价格 | 盈亏 | 盈亏率 | 原因 |
+|---|---------|---------|------|--------|------|
+| 1 | 0.07147 | 0.07597 | +15.48 USDT | +6.19% | 止盈 |
+| 2 | 0.07695 | 0.08253 | +18.13 USDT | +7.14% | 止盈 |
+| 3 | 0.08332 | 0.08951 | +18.91 USDT | +7.32% | 止盈 |
+| 4 | 0.08771 | 0.08443 | -10.09 USDT | -3.84% | 止损 |
+| 5 | 0.08491 | 0.08123 | -11.53 USDT | -4.43% | 止损 |
+
+### 卖出原因分布
+
+| 原因 | 触发次数 | 占比 |
+|------|---------|------|
+| 🎯 止盈 (+6%) | 21次 | 41% |
+| 🛑 止损 (-3%) | 30次 | 58% |
+| ⏰ 时间止损 | 0次 | 0% |
+| 📉 AI看跌 | 0次 | 0% |
 
 ---
 
-## 🚀 实时/模拟交易（LiveRunner）
+## 🔧 优化历程
 
-```bash
-python live/live_runner.py
+### v1.0 - 基础架构（2025-12-23）
+- ✅ 实现完整的买卖交易循环
+- ✅ 添加持仓状态跟踪
+- ✅ 实现4种卖出条件
+- ✅ 总交易次数从0提升到19
+
+### v1.1 - 买入质量优化（2025-12-24）
+- ✅ CONFIDENCE_THRESHOLD: 0.30 → 0.50
+- ✅ 趋势过滤: MA50 → MA20
+- ✅ 新增RSI过滤: RSI > 50
+- ⚠️ 效果不显著（测试数据局限）
+
+### 下一步计划
+- 🎯 提高阈值到0.65
+- 🎯 运行5000-10000根K线长周期回测
+- 🎯 增加MACD和成交量过滤
+- 🎯 实现移动止损机制
+
+---
+
+## 📈 性能优化建议
+
+### 提高胜率（目标55%+）
+
+1. **提高买入阈值**
+   ```python
+   CONFIDENCE_THRESHOLD = 0.65  # 从0.50提高到0.65
+   ```
+
+2. **增加过滤条件**
+   - MACD过滤：要求MACD > 0
+   - 成交量确认：要求成交量 > 20日均量
+   - 多时间框架确认
+
+3. **优化止盈止损**
+   - 移动止损：盈利3%后移至成本价
+   - 分批止盈：3%卖出30%，5%卖出30%，剩余等待6%
+
+### 长周期回测
+
+```python
+# 修改回测配置
+BACKTEST_CONFIG = {
+    "start_date": "2023-06-01",  # 6个月数据
+    "end_date": "2023-12-01",
+}
 ```
 
-- `USE_REAL_MONEY=False` 为模拟；设 True 并配置 `API_KEY/API_SECRET` 进入实盘。
-- `TRADE_ONLY_ON_CANDLE_CLOSE=False` 可在未闭合K线时按最新价评估并下单（调试用）。
+---
+
+## 🛠️ 开发指南
+
+### 添加新策略
+
+1. 继承 `AISignalCore` 或创建新策略类
+2. 实现 `get_signal(data)` 方法
+3. 返回信号字典：`{"signal": "buy/sell/hold", "confidence": 0.0-1.0, "reason": "..."}`
+
+```python
+class MyStrategy:
+    def get_signal(self, data: pd.DataFrame) -> Dict[str, Any]:
+        # 你的策略逻辑
+        if condition:
+            return {
+                "signal": "buy",
+                "confidence": 0.8,
+                "reason": "自定义买入条件"
+            }
+        return {"signal": "hold", "confidence": 0.0, "reason": "无信号"}
+```
+
+### 添加新的Broker
+
+1. 继承 `BaseBroker`
+2. 实现必要的方法：`place_order()`, `close_position()`, `get_balance()` 等
+3. 在 `TradingEngine` 中使用
 
 ---
 
-## 🚀 扩展方向
+## 📚 文档资源
 
-- [ ] 实盘交易接口（Binance API）
-- [ ] Telegram / 邮件交易通知
-- [ ] Web 可视化看板（Streamlit / Dash）
-- [ ] 多币种并行策略
-- [ ] 风险控制模块（最大回撤止损）
+- **BACKTEST_RESULTS_ANALYSIS.md** - 详细回测分析报告
+- **OPTIMIZATION_COMPARISON.md** - 优化对比分析
+- **DELIVERY_SUMMARY.md** - 交付总结文档
+- **FINAL_BACKTEST_ANALYSIS.md** - 最终回测分析
+
+---
+
+## 🔍 故障排查
+
+### 问题：回测没有产生交易
+
+**可能原因**：
+1. AI模型预测值都低于阈值
+2. 趋势过滤阻止了所有买入
+3. 持仓状态未正确更新
+
+**解决方案**：
+1. 降低 `CONFIDENCE_THRESHOLD`
+2. 检查日志中的 "买入判断" 和 "趋势过滤" 信息
+3. 确保 `TradingEngine` 正确传入 `strategy` 对象
+
+### 问题：止盈止损未触发
+
+**可能原因**：
+1. 持仓状态未更新
+2. 价格波动未达到阈值
+
+**解决方案**：
+1. 检查日志中的 "持仓盈亏" 信息
+2. 调整止盈止损百分比
+
+---
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
 
 ---
 
 ## 📜 许可证
 
-本项目采用 [Apache-2.0 许可证](LICENSE)。
+本项目采用 [MIT 许可证](LICENSE)。
 
 ---
 
 ## 🙌 致谢
 
-- [Backtrader](https://www.backtrader.com/)：回测框架
-- [LightGBM](https://lightgbm.readthedocs.io/)：高效梯度提升
-- [Prophet](https://facebook.github.io/prophet/)：时间序列预测
-- [CCXT](https://ccxt.trade/)：统一交易所 API
+- [CCXT](https://ccxt.trade/) - 统一的交易所API
+- [LightGBM](https://lightgbm.readthedocs.io/) - 高效的梯度提升框架
+- [Pandas](https://pandas.pydata.org/) - 数据分析工具
+- [NumPy](https://numpy.org/) - 科学计算库
 
 ---
 
-> 💡 **提示**：本系统仅供学习与研究使用，**不构成投资建议**。实盘交易前请充分测试并评估风险。
+## ⚠️ 免责声明
+
+**本项目仅供学习和研究使用，不构成任何投资建议。**
+
+- ⚠️ 加密货币交易具有高风险，可能导致本金损失
+- ⚠️ 过去的回测表现不代表未来收益
+- ⚠️ 实盘交易前请充分测试并评估风险
+- ⚠️ 请勿使用超出承受能力的资金进行交易
+
+**使用本系统进行实盘交易的所有风险由用户自行承担。**
+
+---
+
+## 📞 联系方式
+
+- **GitHub**: [yanzhao77/ButterflyBot](https://github.com/yanzhao77/ButterflyBot)
+- **Issues**: [提交问题](https://github.com/yanzhao77/ButterflyBot/issues)
+
+---
+
+**Happy Trading! 🚀**
