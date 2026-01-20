@@ -154,15 +154,28 @@ class AISignalCore:
                 logger.info(f"🎯 触发止盈: {signal}")
                 return signal
             
-            # 2. 检查止损
-            if current_profit_pct <= -self.stop_loss_pct:
+            # 2. 检查移动止损
+            # 移动止损逻辑：
+            # - 盈利 >= 5%: 止损移至 +2%（锁定部分利润）
+            # - 盈利 >= 3%: 止损移至成本价 0%（保本）
+            # - 盈利 < 3%: 固定止损 -3%
+            dynamic_stop_loss = -self.stop_loss_pct  # 默认-3%
+            
+            if current_profit_pct >= 5.0:
+                dynamic_stop_loss = 2.0  # 盈利5%后，止损移至+2%
+                logger.debug(f"📈 移动止损: 盈利{current_profit_pct:+.2f}% >= 5%, 止损线移至+2%")
+            elif current_profit_pct >= 3.0:
+                dynamic_stop_loss = 0.0  # 盈利3%后，止损移至成本价
+                logger.debug(f"📈 移动止损: 盈利{current_profit_pct:+.2f}% >= 3%, 止损线移至成本价")
+            
+            if current_profit_pct <= dynamic_stop_loss:
                 signal = {
                     "signal": "sell",
                     "confidence": 1.0,
-                    "reason": f"止损 ({current_profit_pct:+.2f}% <= -{self.stop_loss_pct}%)",
+                    "reason": f"移动止损 ({current_profit_pct:+.2f}% <= {dynamic_stop_loss:+.2f}%)",
                     "timestamp": pd.Timestamp.now()
                 }
-                logger.info(f"🛑 触发止损: {signal}")
+                logger.info(f"🛑 触发移动止损: {signal}")
                 return signal
             
             # 3. 检查时间止损

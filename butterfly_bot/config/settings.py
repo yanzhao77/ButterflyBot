@@ -31,7 +31,7 @@ TAKE_PROFIT_PCT = 0.06  # 默认止盈 6%（盈亏比2:1）
 MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
 
 # 策略参数（传递给 AISignalCore/策略）- 优化后（v3：基于新模型AUC 0.85）
-CONFIDENCE_THRESHOLD = 0.50  # 买入置信阈值（优化到0.50，提高买入质量）
+CONFIDENCE_THRESHOLD = 0.70  # 买入置信阈值（最优配置: 0.70，胜率55.56%，盈利因子2.19）
 SELL_THRESHOLD = 0.45  # 卖出/平仓阈值（调整到0.45，匹配模型预测概率分布）
 TREND_FILTER = True
 COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（降低到5，约1.25小时）
@@ -108,6 +108,6 @@ BACKTEST_CONFIG = {
     "initial_balance": INITIAL_CASH,
     "leverage": 1,
     "contract_type": "spot",
-    "start_date": "2023-11-01",
+    "start_date": "2023-09-01",  # 3个月长周期回测
     "end_date": "2023-11-30",
 }
