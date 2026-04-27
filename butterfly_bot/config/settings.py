@@ -28,7 +28,7 @@ MAX_RISK_PER_TRADE = 0.02  # 单笔最大风险 2%
 STOP_LOSS_PCT = 0.03  # 默认止损 3%（适度放宽）
 TAKE_PROFIT_PCT = 0.06  # 默认止盈 6%（盈亏比2:1）
 # 风控
-MAX_POSITION_RATIO = 0.25  # 最大使用资金比例（25%，降低风险敞口）
+MAX_POSITION_RATIO = 0.10  # 最大使用资金比例（10%，降低实盘风险敞口）
 
 # 策略参数（传递给 AISignalCore/策略）- 优化后（v3：基于新模型AUC 0.85）
 CONFIDENCE_THRESHOLD = 0.70  # 买入置信阈值（最优配置: 0.70，胜率55.56%，盈利因子2.19）
@@ -65,9 +65,9 @@ RETRAIN_ON_DEGRADATION = True
 RETRAIN_AUC_DIFF = 0.01
 # 当回测收益为负且 RETRAIN_ON_DEGRADATION 为 True 时也会触发重训练
 # 重训练拉取历史天数（优化为365天，平衡数据量和训练速度）
-RETRAIN_SINCE_DAYS = 30  # 优化到365天，关注近期市场特征
+RETRAIN_SINCE_DAYS = 1825  # 5年历史数据（5*365天）
 # 重训练时的最大 K 线条数（fetch limit）
-RETRAIN_LIMIT = 5000
+RETRAIN_LIMIT = 200000  # 5年约198,000根K线
 # 是否将重训练放到后台线程异步执行（避免阻塞回测流程）
 RETRAIN_ASYNC = True
 RETRAIN_MAX_ATTEMPTS = 2  # 自动重训练最大尝试次数
@@ -94,7 +94,7 @@ AI_SIGNAL_CONFIG = {
 }
 
 # 风险管理配置
-MAX_DRAWDOWN = 0.50  # 最大回撤比例（临时调高到50%用于调试）
+MAX_DRAWDOWN = 0.15  # 最大回撤比例（账户级硬止损，总回撤-15%自动停止）
 
 RISK_MANAGEMENT_CONFIG = {
     "max_risk_per_trade": MAX_RISK_PER_TRADE,
