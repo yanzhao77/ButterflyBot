@@ -1,0 +1,130 @@
+{
+  "timestamp": "20260427_122201",
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "data_range": "2025-12-12 16:00:00+00:00 ~ 2025-12-23 01:45:00+00:00",
+  "total_candles": 1000,
+  "p_ema_stats": {
+    "min": 0.1602749125201167,
+    "max": 0.7102942095521115,
+    "mean": 0.4054524155547699,
+    "q85": 0.5437497291119936,
+    "q90": 0.5807232912957672
+  },
+  "baseline_fixed_stop": {
+    "mode": "fixed",
+    "initial": 1000.0,
+    "final": 1000.64,
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "win_rate": 100.0,
+    "profit_factor": Infinity,
+    "total_profit": 0.89,
+    "total_loss": 0,
+    "avg_profit": 0.89,
+    "avg_loss": 0,
+    "net_pct": 0.06,
+    "reasons": {
+      "AI\u770b\u8dcc": 1
+    },
+    "trade_list": [
+      {
+        "profit": 0.8883318140382812,
+        "profit_pct": 0.004557885141294359,
+        "holding_bars": 15,
+        "reason": "AI\u770b\u8dcc"
+      }
+    ]
+  },
+  "optimized_trailing_stop": {
+    "mode": "fixed",
+    "initial": 1000.0,
+    "final": 1000.64,
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "win_rate": 100.0,
+    "profit_factor": Infinity,
+    "total_profit": 0.89,
+    "total_loss": 0,
+    "avg_profit": 0.89,
+    "avg_loss": 0,
+    "net_pct": 0.06,
+    "reasons": {
+      "AI\u770b\u8dcc": 1
+    },
+    "trade_list": [
+      {
+        "profit": 0.8883318140382812,
+        "profit_pct": 0.004557885141294359,
+        "holding_bars": 15,
+        "reason": "AI\u770b\u8dcc"
+      }
+    ]
+  },
+  "optimized_dynamic_threshold": {
+    "mode": "dynamic",
+    "initial": 1000.0,
+    "final": 979.86,
+    "trades": 7,
+    "wins": 3,
+    "losses": 4,
+    "win_rate": 42.86,
+    "profit_factor": 0.231,
+    "total_profit": 5.52,
+    "total_loss": 23.92,
+    "avg_profit": 1.84,
+    "avg_loss": 5.98,
+    "net_pct": -2.01,
+    "reasons": {
+      "\u65f6\u95f4\u6b62\u635f": 3,
+      "\u56fa\u5b9a\u6b62\u635f": 2,
+      "AI\u770b\u8dcc": 2
+    },
+    "trade_list": [
+      {
+        "profit": 0.07976699029126166,
+        "profit_pct": 0.00132038834951459,
+        "holding_bars": 50,
+        "reason": "\u65f6\u95f4\u6b62\u635f"
+      },
+      {
+        "profit": 1.6798348847417515,
+        "profit_pct": 0.0077282117989135425,
+        "holding_bars": 50,
+        "reason": "\u65f6\u95f4\u6b62\u635f"
+      },
+      {
+        "profit": -10.657867785544795,
+        "profit_pct": -0.04161945766296559,
+        "holding_bars": 6,
+        "reason": "\u56fa\u5b9a\u6b62\u635f"
+      },
+      {
+        "profit": -10.632250682038944,
+        "profit_pct": -0.0419853285469019,
+        "holding_bars": 9,
+        "reason": "\u56fa\u5b9a\u6b62\u635f"
+      },
+      {
+        "profit": -0.338150028239113,
+        "profit_pct": -0.00038133007931661457,
+        "holding_bars": 46,
+        "reason": "AI\u770b\u8dcc"
+      },
+      {
+        "profit": 3.7554793151954016,
+        "profit_pct": 0.016362252663622626,
+        "holding_bars": 50,
+        "reason": "\u65f6\u95f4\u6b62\u635f"
+      },
+      {
+        "profit": -2.2903706543248745,
+        "profit_pct": -0.008333953419153283,
+        "holding_bars": 36,
+        "reason": "AI\u770b\u8dcc"
+      }
+    ]
+  }
+}

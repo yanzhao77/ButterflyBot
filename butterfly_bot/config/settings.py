@@ -37,9 +37,9 @@ TREND_FILTER = True
 COOLDOWN_BARS = 5  # 平仓/开仓后的冷却条数（降低到5，约1.25小时）
 PROB_EMA_SPAN = 10  # 预测概率EMA平滑窗口（保持10）
 TIME_STOP_BARS = 50  # 时间止损：持仓超过N根K线未验证则平仓（延长至50，约12.5小时）
-USE_QUANTILE_THRESH = False  # 禁用分位数阈值，使用固定阈值
-PROB_Q_HIGH = 0.75  # 买入触发的高分位（降低到0.75，更合理）
-PROB_Q_LOW = 0.25  # 卖出触发的低分位（降低到0.25，更积极）
+USE_QUANTILE_THRESH = False  # 固定阈值基准测试
+PROB_Q_HIGH = 0.85  # 买入触发的高分位（降低到0.75，更合理）
+PROB_Q_LOW = 0.20  # 卖出触发的低分位（降低到0.25，更积极）
 PROB_WINDOW = 300  # 分位数计算窗口大小（增加到300，更稳定）
 REQUIRE_P_EMA_UP = False  # 禁用动量过滤，允许所有信号
 P_EMA_MOMENTUM_BARS = 3  # 动量判断窗口（最近N根 p_ema 需上升）
@@ -108,6 +108,6 @@ BACKTEST_CONFIG = {
     "initial_balance": INITIAL_CASH,
     "leverage": 1,
     "contract_type": "spot",
-    "start_date": "2023-09-01",  # 3个月长周期回测
-    "end_date": "2023-11-30",
+    "start_date": "2025-11-01",  # 模型表现最好时期
+    "end_date": "2025-12-20",
 }

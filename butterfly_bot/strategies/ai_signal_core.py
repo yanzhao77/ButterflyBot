@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Any, Optional
 
+import numpy as np
 import pandas as pd
 
 from ..data.features import add_features, get_feature_columns
@@ -193,7 +194,7 @@ class AISignalCore:
             # 构建特征并预测
             try:
                 df_feat = add_features(df)
-                X = df_feat[self._feature_cols]
+                X = df_feat[self._feature_cols].iloc[[-1]]  # 只取最后一行进行预测
                 prob = float(self.model.predict(X))
                 
                 # 概率EMA
@@ -201,7 +202,11 @@ class AISignalCore:
                 self._prob_ema = prob if self._prob_ema is None else (alpha * prob + (1 - alpha) * self._prob_ema)
                 p_eval = float(self._prob_ema)
                 
-                sell_th = float(SELL_THRESHOLD)
+                # 持仓时的卖出阈值（动态 or 固定）
+                if USE_QUANTILE_THRESH and len(self._pema_hist) >= PROB_WINDOW:
+                    sell_th = float(np.quantile(self._pema_hist[-PROB_WINDOW:], PROB_Q_LOW))
+                else:
+                    sell_th = float(SELL_THRESHOLD)
                 logger.info(f"📊 AI预测: p_ema={p_eval:.4f}, sell_th={sell_th:.4f}")
                 
                 if p_eval <= sell_th:
@@ -238,7 +243,7 @@ class AISignalCore:
 
         # 模型预测
         try:
-            X = df_feat[self._feature_cols]
+            X = df_feat[self._feature_cols].iloc[[-1]]  # 只取最后一行进行预测
             prob = float(self.model.predict(X))
             logger.debug(f"✅ 模型预测: prob={prob:.4f}")
         except Exception as e:
@@ -259,9 +264,15 @@ class AISignalCore:
         p_eval = float(self._prob_ema)
         self._pema_hist.append(p_eval)
 
-        # 阈值
-        buy_th = float(CONFIDENCE_THRESHOLD)
-        sell_th = float(SELL_THRESHOLD)
+        # 阈值（动态 or 固定）
+        if USE_QUANTILE_THRESH and len(self._pema_hist) >= PROB_WINDOW:
+            recent_pema = self._pema_hist[-PROB_WINDOW:]
+            buy_th = float(np.quantile(recent_pema, PROB_Q_HIGH))
+            sell_th = float(np.quantile(recent_pema, PROB_Q_LOW))
+            logger.debug(f"📊 动态阈值: buy_th={buy_th:.4f}, sell_th={sell_th:.4f} (窗口{PROB_WINDOW}根K线)")
+        else:
+            buy_th = float(CONFIDENCE_THRESHOLD)
+            sell_th = float(SELL_THRESHOLD)
 
         # 趋势过滤（优化：使用MA20更灵敏）
         if self.trend_filter:
