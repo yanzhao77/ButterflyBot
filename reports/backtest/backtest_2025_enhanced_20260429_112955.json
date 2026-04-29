@@ -1,0 +1,107 @@
+{
+  "timestamp": "20260429_112955",
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "period": "2025-01-01 ~ 2025-12-23",
+  "total_bars": 34184,
+  "model": "v20260429_112717",
+  "config": {
+    "initial_balance": 1000.0,
+    "sl_long": -0.015,
+    "tp_long": 0.03,
+    "sl_short": -0.015,
+    "tp_short": 0.03,
+    "hard_stop_pct": 0.15
+  },
+  "results": {
+    "A.旧模型仅做多(仓位10%)": {
+      "label": "A.旧模型仅做多(仓位10%)",
+      "final_balance": 1116.18,
+      "net_return_pct": 11.62,
+      "max_drawdown_pct": -1.09,
+      "total_trades": 127,
+      "long_trades": 127,
+      "short_trades": 0,
+      "win_rate": 59.84,
+      "profit_factor": 2.066,
+      "total_profit": 225.12,
+      "total_loss": 108.95,
+      "avg_profit": 2.96,
+      "avg_loss": -2.14,
+      "reason_counts": {
+        "止盈": 52,
+        "固定止损": 42,
+        "AI看跌": 33
+      },
+      "hard_stopped": false
+    },
+    "B.新模型仅做多(仓位50%)": {
+      "label": "B.新模型仅做多(仓位50%)",
+      "final_balance": 1716.01,
+      "net_return_pct": 71.6,
+      "max_drawdown_pct": -5.42,
+      "total_trades": 127,
+      "long_trades": 127,
+      "short_trades": 0,
+      "win_rate": 59.84,
+      "profit_factor": 1.928,
+      "total_profit": 1487.91,
+      "total_loss": 771.89,
+      "avg_profit": 19.58,
+      "avg_loss": -15.14,
+      "reason_counts": {
+        "止盈": 52,
+        "固定止损": 42,
+        "AI看跌": 33
+      },
+      "hard_stopped": false
+    },
+    "C.新模型双向(仓位50%)": {
+      "label": "C.新模型双向(仓位50%)",
+      "final_balance": 1585.72,
+      "net_return_pct": 58.57,
+      "max_drawdown_pct": -15.33,
+      "total_trades": 364,
+      "long_trades": 99,
+      "short_trades": 265,
+      "win_rate": 46.43,
+      "profit_factor": 1.21,
+      "total_profit": 3378.7,
+      "total_loss": 2792.99,
+      "avg_profit": 19.99,
+      "avg_loss": -14.32,
+      "reason_counts": {
+        "止盈": 127,
+        "固定止损": 161,
+        "时间止损": 15,
+        "AI看涨": 36,
+        "AI看跌": 24,
+        "账户硬止损": 1
+      },
+      "hard_stopped": true
+    },
+    "D.新模型双向宽松(仓位50%)": {
+      "label": "D.新模型双向宽松(仓位50%)",
+      "final_balance": 1477.65,
+      "net_return_pct": 47.77,
+      "max_drawdown_pct": -15.06,
+      "total_trades": 384,
+      "long_trades": 140,
+      "short_trades": 244,
+      "win_rate": 45.57,
+      "profit_factor": 1.146,
+      "total_profit": 3760.14,
+      "total_loss": 3282.48,
+      "avg_profit": 21.49,
+      "avg_loss": -15.71,
+      "reason_counts": {
+        "AI看跌": 45,
+        "止盈": 99,
+        "时间止损": 61,
+        "固定止损": 153,
+        "AI看涨": 26
+      },
+      "hard_stopped": true
+    }
+  }
+}

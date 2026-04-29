@@ -1,0 +1,22 @@
+{
+  "version": "v20260429_112717",
+  "timestamp": "20260429_112717",
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "train_period": "2024-2025",
+  "train_samples": 58752,
+  "val_samples": 10369,
+  "feature_count": 128,
+  "auc_long": 0.7544,
+  "auc_short": 0.7445,
+  "cv_auc_mean": 0.7294,
+  "cv_auc_std": 0.0168,
+  "target_shift": 4,
+  "target_up_th": 0.015,
+  "target_down_th": 0.015,
+  "model_long": "v20260429_112717_long.pkl",
+  "model_short": "v20260429_112717_short.pkl",
+  "cal_long": "v20260429_112717_cal_long.pkl",
+  "cal_short": "v20260429_112717_cal_short.pkl",
+  "features_file": "v20260429_112717_features.json"
+}
