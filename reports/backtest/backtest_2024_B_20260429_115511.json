@@ -1,0 +1,99 @@
+{
+  "timestamp": "20260429_115511",
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "period": "2024-01-01 ~ 2024-12-31",
+  "total_bars": 35136,
+  "model": "v20260429_112717",
+  "config": {
+    "initial_balance": 1000.0,
+    "position_pct": 0.5,
+    "sl": -0.015,
+    "tp": 0.03,
+    "long_th": 0.1,
+    "hard_stop_pct": 0.15
+  },
+  "results": {
+    "B组 阈值0.10 止损-1.5% 止盈+3%": {
+      "label": "B组 阈值0.10 止损-1.5% 止盈+3%",
+      "final_balance": 1025.3,
+      "net_return_pct": 2.53,
+      "max_drawdown_pct": -15.89,
+      "total_trades": 103,
+      "win_rate": 41.75,
+      "profit_factor": 1.032,
+      "total_profit": 808.87,
+      "total_loss": 783.58,
+      "avg_profit": 18.81,
+      "avg_loss": -13.06,
+      "reason_counts": {
+        "AI看跌": 8,
+        "止盈": 39,
+        "固定止损": 55,
+        "账户硬止损": 1
+      },
+      "hard_stopped": true
+    },
+    "对比1 阈值0.10 止损-2% 止盈+4%": {
+      "label": "对比1 阈值0.10 止损-2% 止盈+4%",
+      "final_balance": 1231.93,
+      "net_return_pct": 23.19,
+      "max_drawdown_pct": -15.19,
+      "total_trades": 71,
+      "win_rate": 50.7,
+      "profit_factor": 1.361,
+      "total_profit": 874.79,
+      "total_loss": 642.86,
+      "avg_profit": 24.3,
+      "avg_loss": -18.37,
+      "reason_counts": {
+        "AI看跌": 5,
+        "止盈": 30,
+        "时间止损": 4,
+        "固定止损": 31,
+        "账户硬止损": 1
+      },
+      "hard_stopped": true
+    },
+    "对比2 阈值0.12 止损-1.5% 止盈+3%": {
+      "label": "对比2 阈值0.12 止损-1.5% 止盈+3%",
+      "final_balance": 1823.69,
+      "net_return_pct": 82.37,
+      "max_drawdown_pct": -11.42,
+      "total_trades": 259,
+      "win_rate": 49.42,
+      "profit_factor": 1.437,
+      "total_profit": 2710.0,
+      "total_loss": 1886.31,
+      "avg_profit": 21.17,
+      "avg_loss": -14.4,
+      "reason_counts": {
+        "AI看跌": 29,
+        "固定止损": 120,
+        "止盈": 110
+      },
+      "hard_stopped": false
+    },
+    "对比3 阈值0.08 止损-1.5% 止盈+3%": {
+      "label": "对比3 阈值0.08 止损-1.5% 止盈+3%",
+      "final_balance": 1029.94,
+      "net_return_pct": 2.99,
+      "max_drawdown_pct": -15.3,
+      "total_trades": 108,
+      "win_rate": 40.74,
+      "profit_factor": 1.035,
+      "total_profit": 879.03,
+      "total_loss": 849.09,
+      "avg_profit": 19.98,
+      "avg_loss": -13.27,
+      "reason_counts": {
+        "固定止损": 61,
+        "AI看跌": 5,
+        "止盈": 39,
+        "时间止损": 2,
+        "账户硬止损": 1
+      },
+      "hard_stopped": true
+    }
+  }
+}
