@@ -1,0 +1,75 @@
+{
+  "timestamp": "20260429_021014",
+  "symbol": "DOGE/USDT",
+  "timeframe": "15m",
+  "period": "2025-01-01 ~ 2025-12-23",
+  "total_bars": 34184,
+  "model": "v20260427_145956",
+  "config": {
+    "initial_balance": 1000.0,
+    "position_pct": 0.1,
+    "fee_rate": 0.001,
+    "hard_stop_pct": 0.15
+  },
+  "results": {
+    "A.当前配置(0.40,-2%,+4%)": {
+      "label": "A.当前配置(0.40,-2%,+4%)",
+      "final_balance": 1006.88,
+      "net_return_pct": 0.69,
+      "max_drawdown_pct": -1.28,
+      "total_trades": 21,
+      "win_rate": 57.14,
+      "profit_factor": 1.238,
+      "total_profit": 35.82,
+      "total_loss": 28.93,
+      "avg_profit": 2.98,
+      "avg_loss": -3.21,
+      "reason_counts": {
+        "固定止损": 9,
+        "止盈": 6,
+        "AI看跌": 3,
+        "时间止损": 3
+      },
+      "hard_stopped": false
+    },
+    "B.宽松阈值(0.35,-2%,+4%)": {
+      "label": "B.宽松阈值(0.35,-2%,+4%)",
+      "final_balance": 956.8,
+      "net_return_pct": -4.32,
+      "max_drawdown_pct": -4.68,
+      "total_trades": 93,
+      "win_rate": 38.71,
+      "profit_factor": 0.708,
+      "total_profit": 104.7,
+      "total_loss": 147.9,
+      "avg_profit": 2.91,
+      "avg_loss": -2.59,
+      "reason_counts": {
+        "固定止损": 52,
+        "AI看跌": 9,
+        "止盈": 21,
+        "时间止损": 11
+      },
+      "hard_stopped": false
+    },
+    "C.收紧止损(0.40,-1.5%,+3%)": {
+      "label": "C.收紧止损(0.40,-1.5%,+3%)",
+      "final_balance": 1012.55,
+      "net_return_pct": 1.25,
+      "max_drawdown_pct": -0.79,
+      "total_trades": 21,
+      "win_rate": 52.38,
+      "profit_factor": 1.591,
+      "total_profit": 33.79,
+      "total_loss": 21.24,
+      "avg_profit": 3.07,
+      "avg_loss": -2.12,
+      "reason_counts": {
+        "固定止损": 10,
+        "止盈": 10,
+        "AI看跌": 1
+      },
+      "hard_stopped": false
+    }
+  }
+}
